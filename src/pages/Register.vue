@@ -43,11 +43,13 @@
           :error="passwordsMatch === false ? 'Пароли не совпадают' : ''"
         />
 
-        <BaseInput
+        <BaseCombobox
           v-model="formData.schoolId"
-          type="text"
-          label="Школа (опционально):"
-          placeholder="ID школы"
+          label="Школа (опционально)"
+          placeholder="Выберите школу..."
+          :fetchOptions="fetchSchools"
+          valueKey="id"
+          displayKey="name"
           :disabled="isLoading"
         />
 
@@ -83,7 +85,13 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "../store/store.js";
-import { BaseInput, BaseButton, ErrorMessage } from './ui';
+import {
+  BaseInput,
+  BaseButton,
+  ErrorMessage,
+  BaseCombobox,
+} from "../components/ui";
+import { schoolService } from "../services/api.js";
 
 const router = useRouter();
 const { register, isLoading, error, clearError } = useAuth();
@@ -114,6 +122,17 @@ const isFormValid = computed(() => {
   );
 });
 
+// Загрузка школ для комбобокса
+const fetchSchools = async () => {
+  try {
+    const schools = await schoolService.getAllSchools();
+    return schools;
+  } catch (error) {
+    console.error("Ошибка загрузки школ:", error);
+    throw error;
+  }
+};
+
 const handleRegister = async () => {
   try {
     const registerData = {
@@ -131,10 +150,8 @@ const handleRegister = async () => {
     }
 
     await register(registerData);
-    // Перенаправляем на главную страницу после успешной регистрации
     router.push("/");
   } catch (err) {
-    // Ошибка уже установлена в store
     console.error("Registration error:", err);
   }
 };
@@ -282,5 +299,15 @@ input:disabled {
 .auth-link a:hover {
   color: var(--color-primary-dark);
   text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 24px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
 }
 </style>

@@ -5,17 +5,17 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
 import { store } from '../store/store.js';
-import Login from '../components/Login.vue';
-import Register from '../components/Register.vue';
-import UIDemo from '../components/UIDemo.vue';
+import Login from '../pages/Login.vue';
+import Register from '../pages/Register.vue';
+import UIDemo from '../pages/UIDemo.vue';
+import Home from '../pages/Home.vue';
+import Profile from '../pages/Profile.vue';
 
 const routes = [
   {
     path: '/',
-    redirect: () => {
-      // Если пользователь не авторизован, перенаправляем на логин
-      return store.getters.isAuthenticated() ? '/' : '/login';
-    },
+    name: 'Home',
+    component: Home,
   },
   {
     path: '/login',
@@ -33,6 +33,11 @@ const routes = [
     path: '/ui-demo',
     name: 'UIDemo',
     component: UIDemo,
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
   },
 ];
 

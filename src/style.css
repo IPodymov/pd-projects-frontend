@@ -151,7 +151,26 @@ button:focus-visible {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+}
+
+/* Responsive breakpoints */
+:root {
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+}
+
+@media (max-width: 768px) {
+  #app {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #app {
+    padding: 1rem;
+  }
 }
 
 @media (prefers-color-scheme: light) {

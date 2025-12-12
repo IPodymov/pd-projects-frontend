@@ -47,7 +47,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../store/store.js';
-import { BaseInput, BaseButton, ErrorMessage } from './ui';
+import { BaseInput, BaseButton, ErrorMessage } from '../components/ui';
 
 const router = useRouter();
 const { login, isLoading, error, clearError } = useAuth();
@@ -60,10 +60,8 @@ const credentials = ref({
 const handleLogin = async () => {
   try {
     await login(credentials.value);
-    // Перенаправляем на главную страницу после успешного входа
     router.push('/');
   } catch (err) {
-    // Ошибка уже установлена в store
     console.error('Login error:', err);
   }
 };
@@ -123,5 +121,15 @@ form {
 .auth-link a:hover {
   color: var(--color-primary-dark);
   text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
 }
 </style>

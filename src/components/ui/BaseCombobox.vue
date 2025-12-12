@@ -6,8 +6,11 @@
     </label>
 
     <div class="combobox-wrapper">
-      <div 
-        :class="['combobox-input', { 'is-open': isOpen, 'has-error': error, 'is-disabled': disabled }]"
+      <div
+        :class="[
+          'combobox-input',
+          { 'is-open': isOpen, 'has-error': error, 'is-disabled': disabled },
+        ]"
         @click="toggleDropdown"
       >
         <span v-if="selectedOption" class="selected-value">
@@ -72,70 +75,70 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from "vue";
 
 const props = defineProps({
   modelValue: {
     type: [String, Number, Object],
-    default: null
+    default: null,
   },
   label: {
     type: String,
-    default: ''
+    default: "",
   },
   placeholder: {
     type: String,
-    default: 'Выберите...'
+    default: "Выберите...",
   },
   options: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   // Функция для загрузки данных из API
   fetchOptions: {
     type: Function,
-    default: null
+    default: null,
   },
   valueKey: {
     type: String,
-    default: 'id'
+    default: "id",
   },
   displayKey: {
     type: String,
-    default: 'name'
+    default: "name",
   },
   searchable: {
     type: Boolean,
-    default: true
+    default: true,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   required: {
     type: Boolean,
-    default: false
+    default: false,
   },
   error: {
     type: String,
-    default: ''
+    default: "",
   },
   hint: {
     type: String,
-    default: ''
+    default: "",
   },
   emptyText: {
     type: String,
-    default: 'Нет данных'
-  }
+    default: "Нет данных",
+  },
 });
 
-const emit = defineEmits(['update:modelValue', 'change']);
+const emit = defineEmits(["update:modelValue", "change"]);
 
 const isOpen = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref("");
 const loading = ref(false);
-const loadError = ref('');
+const loadError = ref("");
 const internalOptions = ref([...props.options]);
 
 const comboboxId = computed(() => {
@@ -144,9 +147,9 @@ const comboboxId = computed(() => {
 
 const selectedOption = computed(() => {
   if (!props.modelValue) return null;
-  
-  return internalOptions.value.find(option => {
-    if (typeof props.modelValue === 'object') {
+
+  return internalOptions.value.find((option) => {
+    if (typeof props.modelValue === "object") {
       return option[props.valueKey] === props.modelValue[props.valueKey];
     }
     return option[props.valueKey] === props.modelValue;
@@ -155,17 +158,17 @@ const selectedOption = computed(() => {
 
 const filteredOptions = computed(() => {
   if (!searchQuery.value) return internalOptions.value;
-  
+
   const query = searchQuery.value.toLowerCase();
-  return internalOptions.value.filter(option => {
+  return internalOptions.value.filter((option) => {
     return option[props.displayKey].toLowerCase().includes(query);
   });
 });
 
 const isSelected = (option) => {
   if (!props.modelValue) return false;
-  
-  if (typeof props.modelValue === 'object') {
+
+  if (typeof props.modelValue === "object") {
     return option[props.valueKey] === props.modelValue[props.valueKey];
   }
   return option[props.valueKey] === props.modelValue;
@@ -173,38 +176,42 @@ const isSelected = (option) => {
 
 const toggleDropdown = () => {
   if (props.disabled) return;
-  
+
   isOpen.value = !isOpen.value;
-  
+
   // Загружаем данные при открытии, если есть функция загрузки
-  if (isOpen.value && props.fetchOptions && internalOptions.value.length === 0) {
+  if (
+    isOpen.value &&
+    props.fetchOptions &&
+    internalOptions.value.length === 0
+  ) {
     loadOptions();
   }
 };
 
 const closeDropdown = () => {
   isOpen.value = false;
-  searchQuery.value = '';
+  searchQuery.value = "";
 };
 
 const selectOption = (option) => {
-  emit('update:modelValue', option[props.valueKey]);
-  emit('change', option);
+  emit("update:modelValue", option[props.valueKey]);
+  emit("change", option);
   closeDropdown();
 };
 
 const loadOptions = async () => {
   if (!props.fetchOptions) return;
-  
+
   loading.value = true;
-  loadError.value = '';
-  
+  loadError.value = "";
+
   try {
     const data = await props.fetchOptions();
     internalOptions.value = data;
   } catch (error) {
-    loadError.value = error.message || 'Ошибка загрузки данных';
-    console.error('Combobox load error:', error);
+    loadError.value = error.message || "Ошибка загрузки данных";
+    console.error("Combobox load error:", error);
   } finally {
     loading.value = false;
   }
@@ -222,11 +229,15 @@ onMounted(() => {
 });
 
 // Обновляем внутренний список при изменении options prop
-watch(() => props.options, (newOptions) => {
-  if (newOptions.length > 0) {
-    internalOptions.value = [...newOptions];
-  }
-}, { immediate: true });
+watch(
+  () => props.options,
+  (newOptions) => {
+    if (newOptions.length > 0) {
+      internalOptions.value = [...newOptions];
+    }
+  },
+  { immediate: true }
+);
 
 // Директива для закрытия при клике вне компонента
 const vClickOutside = {
@@ -236,11 +247,11 @@ const vClickOutside = {
         binding.value();
       }
     };
-    document.addEventListener('click', el.clickOutsideEvent);
+    document.addEventListener("click", el.clickOutsideEvent);
   },
   unmounted(el) {
-    document.removeEventListener('click', el.clickOutsideEvent);
-  }
+    document.removeEventListener("click", el.clickOutsideEvent);
+  },
 };
 </script>
 
@@ -445,6 +456,29 @@ const vClickOutside = {
   color: #999;
   font-size: 12px;
   margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .combobox-dropdown {
+    max-height: 60vh;
+  }
+  .options-list {
+    max-height: calc(60vh - 48px);
+  }
+  .option-item {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+  .search-input {
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .combobox-input {
+    padding: 12px 36px 12px 14px;
+  }
 }
 
 /* Анимация dropdown */
