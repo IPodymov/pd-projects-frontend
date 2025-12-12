@@ -6,6 +6,7 @@ export function getNavLinks(role, schoolId) {
     case 'university_staff':
       return [
         { key: 'users', label: 'Все пользователи', to: '/users', type: 'link' },
+        { key: 'schools', label: 'Школы', to: '/schools', type: 'link' },
         // "Все проекты" намеренно убрано по требованию
       ];
     case 'teacher':

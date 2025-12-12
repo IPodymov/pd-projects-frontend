@@ -10,6 +10,8 @@ import Register from '../pages/Register.vue';
 import UIDemo from '../pages/UIDemo.vue';
 import Home from '../pages/Home.vue';
 import Profile from '../pages/Profile.vue';
+import Users from '../pages/Users.vue';
+import Schools from '../pages/Schools.vue';
 
 const routes = [
   {
@@ -39,6 +41,18 @@ const routes = [
     name: 'Profile',
     component: Profile,
   },
+  {
+    path: '/users',
+    name: 'Users',
+    component: Users,
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/schools',
+    name: 'Schools',
+    component: Schools,
+    meta: { requiresAdmin: true },
+  },
 ];
 
 const router = createRouter({
@@ -52,11 +66,24 @@ const router = createRouter({
  */
 router.beforeEach((to, from, next) => {
   const isAuthenticated = store.getters.isAuthenticated();
+  const user = store.state.user;
 
   // Если требуется гостевой доступ, а пользователь авторизован
   if (to.meta.requiresGuest && isAuthenticated) {
     next('/');
     return;
+  }
+
+  // Если требуется админ доступ
+  if (to.meta.requiresAdmin) {
+    if (!isAuthenticated) {
+      next('/login');
+      return;
+    }
+    if (user?.role !== 'admin' && user?.role !== 'university_staff') {
+      next('/');
+      return;
+    }
   }
 
   next();

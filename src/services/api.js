@@ -133,6 +133,17 @@ export const authService = {
   isAuthenticated() {
     return !!this.getToken();
   },
+
+  /**
+   * Создать пригласительную ссылку для учителя
+   * @param {string} schoolNumber - номер школы
+   */
+  async createInvitation(schoolNumber) {
+    return apiCall('/auth/invitation', {
+      method: 'POST',
+      body: { schoolNumber },
+    });
+  },
 };
 
 /**
@@ -141,20 +152,38 @@ export const authService = {
 export const userService = {
   /**
    * Получить профиль текущего пользователя
+   * @returns {object} - объект пользователя
    */
   async getProfile() {
-    return apiCall(config.endpoints.users.profile);
+    const response = await apiCall(config.endpoints.users.profile);
+    
+    // Бекенд может возвращать:
+    // 1. { message, user } - обернутый ответ
+    // 2. user - объект пользователя напрямую
+    // 3. [users] - массив пользователей
+    
+    if (response.user) return response.user;
+    if (Array.isArray(response) && response.length > 0) return response[0];
+    if (response.id) return response;
+    
+    console.warn('Unexpected profile response format:', response);
+    return response;
   },
 
   /**
    * Обновить профиль
+   * @param {number} userId - ID пользователя
    * @param {object} data - { name?, email?, password?, schoolId?, schoolClassId? }
+   * @returns {object} - объект пользователя с обновленными данными
    */
   async updateProfile(userId, data) {
-    return apiCall(`${config.endpoints.users.profile}/${userId}`, {
+    const response = await apiCall(`${config.endpoints.users.profile}/${userId}`, {
       method: 'PATCH',
       body: data,
     });
+    
+    // Бекенд может возвращать { message, user } или просто user
+    return response.user || response;
   },
 
   /**
@@ -173,6 +202,46 @@ export const userService = {
     return apiCall(config.endpoints.users.github, {
       method: 'POST',
       body: { code },
+    });
+  },
+
+  /**
+   * Получить список всех пользователей (только для admin)
+   */
+  async getAllUsers() {
+    return apiCall('/users');
+  },
+
+  /**
+   * Создать нового пользователя (только для admin)
+   * @param {object} data - { name, email, password, role, schoolId }
+   */
+  async createUser(data) {
+    return apiCall('/users', {
+      method: 'POST',
+      body: data,
+    });
+  },
+
+  /**
+   * Удалить пользователя (только для admin)
+   * @param {number} userId
+   */
+  async deleteUser(userId) {
+    return apiCall(`/users/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /**
+   * Изменить роль пользователя (только для admin)
+   * @param {number} userId
+   * @param {string} role - student | teacher | university_staff | admin
+   */
+  async updateUserRole(userId, role) {
+    return apiCall(`/users/${userId}/role`, {
+      method: 'PATCH',
+      body: { role },
     });
   },
 };
@@ -348,6 +417,27 @@ export const schoolService = {
       includeAuth: false,
     });
     return Array.isArray(response) ? response : [];
+  },
+
+  /**
+   * Создать школу (только для admin и university_staff)
+   * @param {object} data - { number, name, city? }
+   */
+  async createSchool(data) {
+    return apiCall('/schools', {
+      method: 'POST',
+      body: data,
+    });
+  },
+
+  /**
+   * Удалить школу (только для admin и university_staff)
+   * @param {number} schoolId
+   */
+  async deleteSchool(schoolId) {
+    return apiCall(`/schools/${schoolId}`, {
+      method: 'DELETE',
+    });
   },
 };
 

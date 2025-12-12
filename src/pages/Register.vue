@@ -3,6 +3,10 @@
     <div class="register-card">
       <h1>Регистрация</h1>
 
+      <p v-if="isTeacherInvite" class="invite-notice">
+        Регистрация по приглашению учителя
+      </p>
+
       <ErrorMessage :message="error" @close="clearError" />
 
       <form @submit.prevent="handleRegister">
@@ -45,20 +49,25 @@
 
         <BaseCombobox
           v-model="formData.schoolId"
-          label="Школа (опционально)"
+          label="Школа"
           placeholder="Выберите школу..."
           :fetchOptions="fetchSchools"
           valueKey="id"
           displayKey="name"
           :disabled="isLoading"
+          required
         />
 
-        <BaseInput
-          v-model="formData.token"
-          type="text"
-          label="Токен приглашения (опционально):"
-          placeholder="Ссылка приглашения для учителя"
+        <BaseCombobox
+          v-if="!isTeacherInvite && formData.schoolId"
+          v-model="formData.schoolClassId"
+          label="Класс"
+          placeholder="Выберите класс..."
+          :fetchOptions="() => fetchClasses(formData.schoolId)"
+          valueKey="id"
+          displayKey="name"
           :disabled="isLoading"
+          required
         />
 
         <BaseButton
@@ -82,8 +91,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "../store/store.js";
 import {
   BaseInput,
@@ -94,7 +103,12 @@ import {
 import { schoolService } from "../services/api.js";
 
 const router = useRouter();
+const route = useRoute();
 const { register, isLoading, error, clearError } = useAuth();
+
+// Проверяем наличие токена приглашения в URL
+const inviteToken = ref(route.query.token || "");
+const isTeacherInvite = computed(() => !!inviteToken.value);
 
 const formData = ref({
   name: "",
@@ -102,7 +116,14 @@ const formData = ref({
   password: "",
   confirmPassword: "",
   schoolId: "",
-  token: "",
+  schoolClassId: "",
+});
+
+onMounted(() => {
+  // Если есть токен приглашения, сохраняем его
+  if (inviteToken.value) {
+    console.log("Регистрация по приглашению учителя");
+  }
 });
 
 const passwordsMatch = computed(() => {
@@ -113,13 +134,21 @@ const passwordsMatch = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  return (
+  const baseValid =
     formData.value.name &&
     formData.value.email &&
     formData.value.password &&
     formData.value.confirmPassword &&
-    passwordsMatch.value === true
-  );
+    formData.value.schoolId &&
+    passwordsMatch.value === true;
+
+  // Для школьника (обычная регистрация) требуется класс
+  if (!isTeacherInvite.value) {
+    return baseValid && formData.value.schoolClassId;
+  }
+
+  // Для учителя (по приглашению) класс не требуется
+  return baseValid;
 });
 
 // Загрузка школ для комбобокса
@@ -133,20 +162,35 @@ const fetchSchools = async () => {
   }
 };
 
+// Загрузка классов для выбранной школы
+const fetchClasses = async (schoolId) => {
+  if (!schoolId) return [];
+  try {
+    const classes = await schoolService.getSchoolClasses(schoolId);
+    return classes;
+  } catch (error) {
+    console.error("Ошибка загрузки классов:", error);
+    throw error;
+  }
+};
+
 const handleRegister = async () => {
   try {
     const registerData = {
       name: formData.value.name,
       email: formData.value.email,
       password: formData.value.password,
+      schoolId: formData.value.schoolId,
     };
 
-    // Добавляем опциональные поля
-    if (formData.value.schoolId) {
-      registerData.schoolId = formData.value.schoolId;
-    }
-    if (formData.value.token) {
-      registerData.token = formData.value.token;
+    // Если регистрация по приглашению (учитель)
+    if (isTeacherInvite.value) {
+      registerData.token = inviteToken.value;
+    } else {
+      // Обычная регистрация (школьник) - добавляем класс
+      if (formData.value.schoolClassId) {
+        registerData.schoolClassId = formData.value.schoolClassId;
+      }
     }
 
     await register(registerData);
@@ -182,6 +226,17 @@ h1 {
   margin-bottom: 30px;
   font-size: 28px;
   font-weight: 600;
+}
+
+.invite-notice {
+  text-align: center;
+  color: var(--color-primary);
+  background: rgba(0, 91, 187, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .error-message {
