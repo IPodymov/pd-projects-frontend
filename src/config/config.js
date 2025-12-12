@@ -1,19 +1,10 @@
 /**
  * Конфигурация приложения
- * Управляет URL на основе окружения (dev/prod)
  */
 
-const isDevelopment = import.meta.env.MODE === "development";
-const isProduction = import.meta.env.MODE === "production";
-
 export const config = {
-  // API URL в зависимости от окружения
-  apiBaseUrl: isProduction
-    ? import.meta.env.VITE_API_URL_PROD || "https://pd-projects.up.railway.app/"
-    : import.meta.env.VITE_API_URL_DEV || "http://localhost:3000",
-
-  isDevelopment,
-  isProduction,
+  // Базовый URL API
+  apiBaseUrl: "https://pd-projects.up.railway.app",
 
   // Endpoints
   endpoints: {
