@@ -182,24 +182,26 @@ export const userService = {
  */
 export const projectService = {
   /**
-   * Получить список проектов
+   * Получить список проектов (с фильтрацией по роли на бекенде)
    */
   async getProjects() {
-    return apiCall(config.endpoints.projects.list);
+    return apiCall('/projects');
   },
 
   /**
    * Получить проект по ID
    */
   async getProject(id) {
-    return apiCall(config.endpoints.projects.detail(id));
+    return apiCall(`/projects/${id}`);
   },
 
   /**
    * Создать проект
+   * @param {object} data - { title, description, githubUrl?, schoolId, schoolClassId? }
+   * Статус автоматически будет approved для admin/teacher/university_staff, pending для student
    */
   async createProject(data) {
-    return apiCall(config.endpoints.projects.create, {
+    return apiCall('/projects', {
       method: 'POST',
       body: data,
     });
@@ -207,35 +209,42 @@ export const projectService = {
 
   /**
    * Обновить проект
+   * @param {number} id - ID проекта
+   * @param {object} data - { title?, description?, githubUrl?, status? }
    */
   async updateProject(id, data) {
-    return apiCall(config.endpoints.projects.update(id), {
+    return apiCall(`/projects/${id}`, {
       method: 'PATCH',
       body: data,
     });
   },
 
   /**
-   * Изменить статус проекта
+   * Изменить статус проекта (только для teacher/university_staff/admin)
+   * @param {number} id - ID проекта
+   * @param {string} status - pending | approved | rejected
    */
   async updateStatus(id, status) {
-    return apiCall(config.endpoints.projects.status(id), {
+    return apiCall(`/projects/${id}/status`, {
       method: 'PATCH',
       body: { status },
     });
   },
 
   /**
-   * Присоединиться к проекту
+   * Присоединиться к проекту (только для student, max 3 участника)
    */
   async joinProject(id) {
-    return apiCall(config.endpoints.projects.join(id), {
+    return apiCall(`/projects/${id}/join`, {
       method: 'POST',
     });
   },
 
   /**
-   * Загрузить файл
+   * Загрузить файл к проекту
+   * @param {number} id - ID проекта
+   * @param {File} file - Файл для загрузки
+   * @param {string} type - document | presentation
    */
   async uploadFile(id, file, type) {
     const formData = new FormData();
@@ -249,7 +258,7 @@ export const projectService = {
     }
 
     const response = await fetch(
-      `${config.apiBaseUrl}${config.endpoints.projects.upload(id)}`,
+      `${config.apiBaseUrl}/projects/${id}/upload`,
       {
         method: 'POST',
         body: formData,
@@ -258,17 +267,21 @@ export const projectService = {
     );
 
     if (!response.ok) {
-      throw new Error(`Upload failed: ${response.status}`);
+      const error = await response.json().catch(() => ({}));
+      throw {
+        status: response.status,
+        message: error.message || `Upload failed: ${response.status}`,
+      };
     }
 
     return response.json();
   },
 
   /**
-   * Удалить проект
+   * Удалить проект (только admin)
    */
   async deleteProject(id) {
-    return apiCall(config.endpoints.projects.delete(id), {
+    return apiCall(`/projects/${id}`, {
       method: 'DELETE',
     });
   },
@@ -279,32 +292,62 @@ export const projectService = {
  */
 export const schoolService = {
   /**
-   * Получить все школы
+   * Получить все школы (публичный доступ)
+   * @param {string} search - опциональный поиск по номеру, названию или городу
    */
-  async getAllSchools() {
-    const response = await apiCall('/api/schools', {
+  async getAllSchools(search = '') {
+    const url = search ? `/schools?search=${encodeURIComponent(search)}` : '/schools';
+    const response = await apiCall(url, {
       method: 'GET',
+      includeAuth: false,
     });
-    return response.schools || response || [];
+    return Array.isArray(response) ? response : [];
   },
 
   /**
-   * Получить школу по ID
+   * Получить школу по ID с её классами (публичный доступ)
    */
   async getSchoolById(id) {
-    return apiCall(`/api/schools/${id}`, {
+    return apiCall(`/schools/${id}`, {
       method: 'GET',
+      includeAuth: false,
     });
   },
 
   /**
-   * Поиск школ
+   * Получить классы конкретной школы (публичный доступ)
+   * @param {number} schoolId - ID школы
+   * @param {string} search - опциональный поиск по названию класса
    */
-  async searchSchools(query) {
-    const response = await apiCall(`/api/schools/search?query=${encodeURIComponent(query)}`, {
+  async getSchoolClasses(schoolId, search = '') {
+    const url = search 
+      ? `/schools/${schoolId}/classes?search=${encodeURIComponent(search)}`
+      : `/schools/${schoolId}/classes`;
+    const response = await apiCall(url, {
       method: 'GET',
+      includeAuth: false,
     });
-    return response.schools || response || [];
+    return Array.isArray(response) ? response : [];
+  },
+
+  /**
+   * Получить все классы с опциональной фильтрацией (публичный доступ)
+   * @param {object} params - { search?, schoolId? }
+   */
+  async getAllClasses(params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.search) queryParams.append('search', params.search);
+    if (params.schoolId) queryParams.append('schoolId', params.schoolId);
+    
+    const url = queryParams.toString() 
+      ? `/schools/classes/all?${queryParams.toString()}`
+      : '/schools/classes/all';
+    
+    const response = await apiCall(url, {
+      method: 'GET',
+      includeAuth: false,
+    });
+    return Array.isArray(response) ? response : [];
   },
 };
 
