@@ -1,0 +1,38 @@
+/* Основная цветовая палитра: Минимализм и ясность */
+:root {
+  --color-primary: #005bbb;
+  --color-secondary: #e1e8ed;
+  --color-accent: #ff6f00;
+  --color-background: #ffffff;
+  --color-light-gray: #f5f5f5;
+  --color-text: #2c2c2c;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Inter', 'Roboto', 'Arial', sans-serif;
+}
+
+/* Подключение шрифтов из assets/fonts */
+@font-face {
+  font-family: 'Inter';
+  src:
+    url('./src/assets/fonts/Inter-Regular.woff2') format('woff2'),
+    url('./src/assets/fonts/Inter-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src:
+    url('./src/assets/fonts/Roboto-Regular.woff2') format('woff2'),
+    url('./src/assets/fonts/Roboto-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ...добавьте другие начертания и шрифты по необходимости... */
