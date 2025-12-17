@@ -1,5 +1,18 @@
 import api from "./api";
 
+export interface Institution {
+  id: number;
+  name: string;
+  type: "UNIVERSITY" | "SCHOOL";
+}
+
+export interface StudentGroup {
+  id: number;
+  name: string;
+  grade?: number;
+  institution: Institution;
+}
+
 export interface UserProfile {
   id: number;
   email: string;
@@ -7,6 +20,7 @@ export interface UserProfile {
   lastName?: string;
   middleName?: string;
   roles?: { id: number; value: string }[];
+  group?: StudentGroup;
 }
 
 export interface UpdateUserDto {

@@ -37,9 +37,14 @@ const canModerate = computed(
       </li>
     </ul>
     <footer class="project-card__footer">
-      <span class="project-card__author"
-        >Автор: {{ project.author.firstName || project.author.email }}</span
-      >
+      <div class="project-card__meta">
+        <span class="project-card__author"
+          >Автор: {{ project.author.firstName || project.author.email }}</span
+        >
+        <span v-if="project.institution" class="project-card__institution">
+          {{ project.institution.name }} ({{ project.institution.type === 'UNIVERSITY' ? 'ВУЗ' : 'Школа' }})
+        </span>
+      </div>
       <div class="project-card__actions" v-if="canModerate">
         <button
           class="btn btn_theme_success"
@@ -68,7 +73,9 @@ const canModerate = computed(
 .project-card__links { list-style: none; padding: 0; margin: 0; display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .project-card__link { color: #1f2937; text-decoration: underline; font-size: 13px; }
 .project-card__footer { display: grid; gap: var(--space-2); }
+.project-card__meta { display: flex; flex-direction: column; gap: 4px; }
 .project-card__author { font-size: 13px; color: var(--muted); }
+.project-card__institution { font-size: 12px; color: var(--color-primary); font-weight: 500; }
 .project-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 .btn { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; }
 .btn_theme_success { background: #ecfdf5; border-color: #34d399; }

@@ -1,6 +1,7 @@
-import api from './api';
+import api from "./api";
+import type { Institution } from "./users";
 
-export type ProjectStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ProjectStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface ProjectLink {
   id?: number;
@@ -14,6 +15,7 @@ export interface Project {
   description: string;
   status: ProjectStatus;
   author: { id: number; email: string; firstName?: string; lastName?: string };
+  institution?: Institution;
   links: ProjectLink[];
   createdAt: string;
   updatedAt: string;
@@ -34,7 +36,7 @@ export interface UpdateProjectDto {
 
 export const projectsService = {
   async list(): Promise<Project[]> {
-    const { data } = await api.get<Project[]>('/projects');
+    const { data } = await api.get<Project[]>("/projects");
     return data;
   },
   async get(id: number): Promise<Project> {
@@ -42,7 +44,7 @@ export const projectsService = {
     return data;
   },
   async create(dto: CreateProjectDto): Promise<Project> {
-    const { data } = await api.post<Project>('/projects', dto);
+    const { data } = await api.post<Project>("/projects", dto);
     return data;
   },
   async update(id: number, dto: UpdateProjectDto): Promise<Project> {
