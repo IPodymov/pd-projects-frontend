@@ -16,7 +16,10 @@ function reject(id: number) { projects.setStatus(id, 'REJECTED'); }
 <template>
   <section class="project-list">
     <div v-if="projects.loading">Загрузка...</div>
-    <div v-else-if="projects.error">{{ projects.error }}</div>
+    <div v-else-if="projects.error" class="project-list__error">
+      <span>{{ projects.error }}</span>
+      <button class="project-list__retry" @click="projects.fetchAll()">Повторить</button>
+    </div>
     <div v-else-if="!projects.items.length" class="project-list__empty">
       <h3 class="project-list__empty-title">Пока нет связанных с вами проектов</h3>
       <p class="project-list__empty-text">Как только вы создадите или к вам добавят проект, он появится здесь.</p>
@@ -32,5 +35,7 @@ function reject(id: number) { projects.setStatus(id, 'REJECTED'); }
 .project-list__empty { padding: var(--space-5); border: 1px dashed var(--border); border-radius: var(--radius); background: #fff; }
 .project-list__empty-title { margin: 0 0 var(--space-2); font-size: 18px; }
 .project-list__empty-text { margin: 0; color: var(--muted); font-size: 14px; }
+.project-list__error { display: flex; gap: var(--space-3); align-items: center; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+.project-list__retry { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--color-primary); color: #fff; cursor: pointer; }
 @media (min-width: 768px) { .project-list__grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
 </style>

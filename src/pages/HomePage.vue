@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, computed, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import ProjectList from "../components/ProjectList.vue";
 import { useAuthStore } from "../stores/auth";
+import { projectsService } from "../services/projects";
 
 const auth = useAuthStore();
+const router = useRouter();
+const route = useRoute();
+const joiningError = ref("");
 
 const institutionInfo = computed(() => {
   if (auth.user?.group?.institution) {
@@ -13,14 +18,36 @@ const institutionInfo = computed(() => {
   return null;
 });
 
-onMounted(() => {
-  if (!auth.user && auth.token) auth.fetchProfile();
+async function handleInvitationJoin() {
+  const token = route.query.join as string;
+  if (!token || !auth.isAuthenticated) return;
+
+  try {
+    const project = await projectsService.joinProject(token);
+    // Переходим на страницу проекта
+    router.push({ name: "project-details", params: { id: project.id } });
+  } catch (e: any) {
+    joiningError.value =
+      e?.response?.data?.message || "Не удалось присоединиться к проекту";
+  }
+}
+
+onMounted(async () => {
+  if (!auth.user && auth.token) await auth.fetchProfile();
+  
+  // Обработка приглашения если параметр join есть в URL
+  if (route.query.join && auth.isAuthenticated) {
+    await handleInvitationJoin();
+  }
 });
 </script>
 
 <template>
   <main class="page container page_home">
-    <template v-if="auth.isAuthenticated">
+    <template v-if="joiningError">
+      <div class="home__error">{{ joiningError }}</div>
+    </template>
+    <template v-else-if="auth.isAuthenticated">
       <section class="home__header">
         <h1 class="home__title">Проекты</h1>
         <div class="home__subline">
@@ -121,6 +148,15 @@ onMounted(() => {
   color: #fff;
   text-decoration: none;
   font-size: 14px;
+}
+
+.home__error {
+  padding: var(--space-4);
+  background: #fef2f2;
+  border: 1px solid #f87171;
+  border-radius: var(--radius);
+  color: #dc2626;
+  margin-bottom: var(--space-4);
 }
 
 .promo {

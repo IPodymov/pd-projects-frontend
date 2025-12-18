@@ -8,6 +8,7 @@ import {
 } from "../services/projects";
 import { useAuthStore } from "../stores/auth";
 import UiButton from "../ui/Button.vue";
+import ProjectInvite from "../components/ProjectInvite.vue";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -22,6 +23,44 @@ const canModerate = computed(
     (auth.isAdmin || auth.isStaff) &&
     project.value.status === "PENDING"
 );
+
+const isAuthor = computed(
+  () => !!project.value && auth.user?.id === project.value.author.id
+);
+const canInvite = computed(
+  () => !!project.value && (isAuthor.value || auth.isAdmin || auth.isStaff)
+);
+
+const inviteToken = ref<string | null>(null);
+const inviteLoading = ref(false);
+const inviteError = ref<string | null>(null);
+const inviteLink = computed(() => {
+  if (typeof window !== "undefined" && inviteToken.value) {
+    return `${window.location.origin}?join=${inviteToken.value}`;
+  }
+  return "";
+});
+
+async function generateInviteToken() {
+  if (!project.value) return;
+  inviteLoading.value = true;
+  inviteError.value = null;
+  try {
+    const { token } = await projectsService.generateInvitation(project.value.id);
+    inviteToken.value = token;
+  } catch (e: any) {
+    inviteError.value =
+      e?.response?.data?.message || "Не удалось создать приглашение";
+  } finally {
+    inviteLoading.value = false;
+  }
+}
+
+function copyInviteLink() {
+  if (inviteLink.value && typeof navigator !== "undefined" && navigator.clipboard) {
+    navigator.clipboard.writeText(inviteLink.value);
+  }
+}
 
 async function fetchProject() {
   loading.value = true;
@@ -92,6 +131,56 @@ onMounted(() => {
           >Обновлён: {{ new Date(project.updatedAt).toLocaleString() }}</span
         >
       </section>
+      <section v-if="canInvite" class="project__invite">
+        <div class="project__invite-row">
+          <UiButton
+            theme="primary"
+            :disabled="inviteLoading"
+            @click="generateInviteToken"
+          >
+            {{ inviteLoading ? "Создание..." : "Создать приглашение" }}
+          </UiButton>
+          <template v-if="inviteToken">
+            <code class="project__invite-link">{{ inviteLink }}</code>
+            <UiButton theme="secondary" @click="copyInviteLink">Копировать</UiButton>
+          </template>
+        </div>
+        <p v-if="inviteError" class="project__error">{{ inviteError }}</p>
+      </section>
+          <section class="project__team" v-if="project">
+            <h3>Команда</h3>
+            <div class="project__team-list">
+              <span class="project__chip project__chip_author">
+                {{ project.author.firstName || project.author.email }}
+                <small class="project__chip-badge">Автор</small>
+              </span>
+              <span
+                v-for="m in (project.members || [])"
+                :key="m.id"
+                class="project__chip"
+              >
+                {{ m.firstName || m.email }}
+              </span>
+            </div>
+          </section>
+          <section class="project__history" v-if="project?.history">
+            <h3>История изменений</h3>
+            <p v-if="!project.history?.length" class="project__history-empty">
+              История пока пуста
+            </p>
+            <ul v-else class="project__history-list">
+              <li v-for="(h, i) in project.history" :key="h.id || i" class="project__history-item">
+                <span class="project__history-date">
+                  {{ h.createdAt ? new Date(h.createdAt).toLocaleString() : "" }}
+                </span>
+                <span class="project__history-user">
+                  {{ h.changedBy?.firstName || h.changedBy?.email || "Система" }}
+                </span>
+                <span class="project__history-action">— {{ h.changes ? 'Обновление полей' : 'Изменение' }}</span>
+              </li>
+            </ul>
+          </section>
+      <ProjectInvite :project="project" @updated="project = $event" />
     </section>
   </main>
 </template>
@@ -159,5 +248,83 @@ onMounted(() => {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+}
+.project__invite {
+  display: grid;
+  gap: var(--space-2);
+}
+.project__invite-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.project__invite-link {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+}
+.project__error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 13px;
+}
+.project__team {
+  display: grid;
+  gap: var(--space-2);
+}
+.project__team-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.project__chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: #fff;
+  font-size: 12px;
+}
+.project__chip_author {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.project__chip-badge {
+  color: var(--muted);
+}
+.project__history {
+  display: grid;
+  gap: var(--space-2);
+}
+.project__history-empty {
+  margin: 0;
+  color: var(--muted);
+}
+.project__history-list {
+  display: grid;
+  gap: 8px;
+  padding-left: 0;
+  list-style: none;
+}
+.project__history-item {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.project__history-date {
+  color: var(--muted);
+  font-size: 12px;
+}
+.project__history-user {
+  font-weight: 600;
+}
+.project__history-action {
+  color: var(--text);
 }
 </style>

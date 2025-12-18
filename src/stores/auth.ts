@@ -1,6 +1,10 @@
 import { defineStore } from "pinia";
 import { authService } from "../services/auth";
-import { usersService, type UserProfile, type UpdateProfileDto } from "../services/users";
+import {
+  usersService,
+  type UserProfile,
+  type UpdateProfileDto,
+} from "../services/users";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -91,7 +95,8 @@ export const useAuthStore = defineStore("auth", {
         this.user = updated;
         return updated;
       } catch (e: any) {
-        this.error = e?.response?.data?.message || "Не удалось обновить профиль";
+        this.error =
+          e?.response?.data?.message || "Не удалось обновить профиль";
         throw e;
       } finally {
         this.loading = false;
