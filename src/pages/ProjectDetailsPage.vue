@@ -103,6 +103,9 @@ onMounted(() => {
           <h1 class="project__title">{{ project.title }}</h1>
           <p class="project__meta">
             Автор: {{ project.author.firstName || project.author.email }}
+            <template v-if="project.institution">
+              · {{ project.institution.name }} ({{ project.institution.type === 'UNIVERSITY' ? 'ВУЗ' : 'Школа' }})
+            </template>
           </p>
         </div>
         <div v-if="canModerate" class="project__actions">

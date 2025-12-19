@@ -4,6 +4,7 @@ import {
   type Project,
   type ProjectStatus,
 } from "../services/projects";
+import { useAuthStore } from "./auth";
 
 export const useProjectsStore = defineStore("projects", {
   state: () => ({
@@ -16,7 +17,18 @@ export const useProjectsStore = defineStore("projects", {
       this.loading = true;
       this.error = null;
       try {
-        this.items = await projectsService.list();
+        const auth = useAuthStore();
+        // Обеспечиваем наличие профиля
+        if (auth.token && !auth.user) {
+          try {
+            await auth.fetchProfile();
+          } catch {}
+        }
+
+        // Бэкенд автоматически фильтрует по типу заведения пользователя
+        // Для админов/сотрудников показывает все, для обычных — по типу их группы
+        const data = await projectsService.list();
+        this.items = data;
       } catch (e: any) {
         const status = e?.response?.status;
         if (status === 500) {

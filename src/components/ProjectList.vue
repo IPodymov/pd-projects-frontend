@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useProjectsStore } from '../stores/projects';
 import ProjectCard from './ProjectCard.vue';
+import { useAuthStore } from '../stores/auth';
 
 const projects = useProjectsStore();
+const auth = useAuthStore();
 
 onMounted(() => {
   if (!projects.items.length) projects.fetchAll();
@@ -11,6 +13,14 @@ onMounted(() => {
 
 function approve(id: number) { projects.setStatus(id, 'APPROVED'); }
 function reject(id: number) { projects.setStatus(id, 'REJECTED'); }
+
+const emptyText = computed(() => {
+  const instType = auth.user?.group?.institution?.type;
+  if (auth.isAdmin || auth.isStaff) return 'Пока нет проектов';
+  if (instType === 'UNIVERSITY') return 'Пока нет проектов вашего вуза';
+  if (instType === 'SCHOOL') return 'Пока нет проектов вашей школы';
+  return 'Пока нет связанных с вами проектов';
+});
 </script>
 
 <template>
@@ -21,7 +31,7 @@ function reject(id: number) { projects.setStatus(id, 'REJECTED'); }
       <button class="project-list__retry" @click="projects.fetchAll()">Повторить</button>
     </div>
     <div v-else-if="!projects.items.length" class="project-list__empty">
-      <h3 class="project-list__empty-title">Пока нет связанных с вами проектов</h3>
+      <h3 class="project-list__empty-title">{{ emptyText }}</h3>
       <p class="project-list__empty-text">Как только вы создадите или к вам добавят проект, он появится здесь.</p>
     </div>
     <div v-else class="project-list__grid">
