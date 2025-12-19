@@ -25,19 +25,41 @@ export const useProjectsStore = defineStore("projects", {
           } catch {}
         }
 
-        // Бэкенд автоматически фильтрует по типу заведения пользователя
-        // Для админов/сотрудников показывает все, для обычных — по типу их группы
-        const data = await projectsService.list();
-        this.items = data;
+        // Временно запрашиваем публично (skipAuth), чтобы обойти 500 на /projects с токеном студента
+        console.log("[ProjectsStore] Загружаю проекты (публично)...", {
+          isAuthenticated: auth.isAuthenticated,
+          hasUser: !!auth.user,
+          institutionType: auth.user?.group?.institution?.type,
+        });
+        const data = await projectsService.list({ skipAuth: true });
+
+        const userInstType = auth.user?.group?.institution?.type as
+          | "UNIVERSITY"
+          | "SCHOOL"
+          | undefined;
+        const isPrivileged = auth.isAdmin || auth.isStaff;
+
+        // Клиентская фильтрация: студент/школьник видит проекты своего типа учреждения
+        this.items = !isPrivileged && userInstType
+          ? (data || []).filter((p) => p.institution?.type === userInstType)
+          : data;
+        console.log("[ProjectsStore] Проекты загружены:", this.items.length);
       } catch (e: any) {
         const status = e?.response?.status;
+        const serverMessage = e?.response?.data?.message || e?.message;
+        console.error("[ProjectsStore] Ошибка загрузки проектов:", {
+          status,
+          message: serverMessage,
+          fullError: e?.response?.data,
+        });
         if (status === 500) {
-          this.error = "Не удалось загрузить проекты. Попробуйте позже.";
+          this.error = `Ошибка сервера: ${
+            serverMessage || "Попробуйте позже."
+          }`;
         } else if (status === 401 || status === 403) {
           this.error = "Недостаточно прав для просмотра проектов";
         } else {
-          this.error =
-            e?.response?.data?.message || "Не удалось загрузить проекты";
+          this.error = serverMessage || "Не удалось загрузить проекты";
         }
       } finally {
         this.loading = false;

@@ -58,12 +58,16 @@ export const projectsService = {
   async list(params?: {
     search?: string;
     institutionId?: number;
+    skipAuth?: boolean;
   }): Promise<Project[]> {
     const { data } = await api.get<Project[]>("/projects", {
       params: {
         search: params?.search,
         institutionId: params?.institutionId,
       },
+      // skipAuth пробрасывается в интерцептор, чтобы не добавлять Bearer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(params?.skipAuth ? { skipAuth: true as any } : {}),
     });
     return data;
   },
