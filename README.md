@@ -1,56 +1,130 @@
 # PD Projects Frontend
 
-Фронтенд для системы управления проектами. Реализованы:
+Веб-приложение для создания, управления и модерации проектов в учебных заведениях. Студенты вузов и школьники могут создавать проекты, приглашать участников и получать одобрение от модераторов.
 
-- Аутентификация: вход и регистрация (`/auth/login`, `/auth/registration`).
-- Главная: список всех проектов (`GET /projects`).
-- Модерация: для ролей ADMIN/UNIVERSITY_STAFF — одобрение/отклонение проекта (PATCH `/projects/:id` со `status`).
-- Профиль пользователя: просмотр и редактирование имени/фамилии/отчества (`GET /users/profile`, `PATCH /users/:id`).
-- Архитектура: разделение на `pages`, `components`, `ui`; сервисы API; Pinia-хранилище; vue-router.
+## ✨ Основные возможности
 
-## Технологии
+- ✅ **Регистрация и авторизация** — с выбором типа (студент вуза / школьник)
+- ✅ **Создание проектов** — с описанием, ссылками и участниками
+- ✅ **Управление участниками** — приглашения через токены
+- ✅ **Модерация** — администраторы одобряют/отклоняют проекты
+- ✅ **История изменений** — отслеживание всех обновлений проекта
+- ✅ **Фильтрация по ролям** — студент видит проекты вуза, школьник — школы
+- ✅ **Профиль пользователя** — редактирование данных
 
-- Vue 3, TypeScript, Vite
-- Pinia (стейт), vue-router (роутинг), axios (API)
+## 🛠️ Технологии
 
-## Структура
+- **Vue 3** — прогрессивный UI фреймворк
+- **TypeScript** — типизированный JavaScript
+- **Vite** — быстрый сборщик проекта
+- **Pinia** — управление состоянием
+- **Vue Router** — маршрутизация
+- **Axios** — HTTP клиент
+- **Vuetify 3** — компоненты UI
 
-- `src/pages`: `HomePage.vue`, `LoginPage.vue`, `RegisterPage.vue`, `ProfilePage.vue`
-- `src/components`: `NavBar.vue`, `ProjectList.vue`, `ProjectCard.vue`
-- `src/ui`: `Button.vue`, `Input.vue`, `FormField.vue`
-- `src/services`: `api.ts`, `auth.ts`, `projects.ts`, `users.ts`
-- `src/stores`: `auth.ts`, `projects.ts`
-- `src/router`: `index.ts`
-
-Стиль имен классов — БЭМ (`block__element`, `block_mod`). Логика и слои разделены по SOLID/DRY.
-
-## Подготовка
-
-1) Укажите адрес backend в `.env`:
+## 📁 Структура проекта
 
 ```
-VITE_API_BASE_URL=http://localhost:3000
+src/
+├── pages/           # Страницы приложения
+├── components/      # Переиспользуемые компоненты
+├── ui/              # UI компоненты (Button, Input, etc.)
+├── services/        # API интеграция
+├── stores/          # Pinia управление состоянием
+├── router/          # Маршруты приложения
+├── plugins/         # Плагины (Vuetify)
+├── assets/          # Статические файлы
+└── main.ts          # Точка входа
 ```
 
-2) Установка зависимостей и запуск:
+## 🚀 Быстрый старт
+
+### Установка
 
 ```bash
 npm install
-npm run dev
 ```
 
-Сборка продакшн:
+### Конфигурация
+
+Создай или отредактируй `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000/
+```
+
+### Запуск
 
 ```bash
+# Разработка
+npm run dev
+
+# Сборка
 npm run build
+
+# Preview
 npm run preview
 ```
 
-## Роли и доступ
+## 📚 Документация
 
-- Кнопки модерации проектов видны только для пользователей с ролями `ADMIN` или `UNIVERSITY_STAFF` и только для проектов со статусом `PENDING`.
-- Токен JWT сохраняется в `localStorage` и автоматически подставляется в `Authorization: Bearer <token>`.
+Полная документация находится в папке [`docs/`](./docs/):
 
-## Бэкенд
+- **[docs/README.md](./docs/README.md)** — описание проекта и возможности
+- **[docs/SETUP.md](./docs/SETUP.md)** — подробная установка и запуск
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — архитектура приложения
+- **[docs/COMPONENTS.md](./docs/COMPONENTS.md)** — описание всех компонентов
+- **[docs/SERVICES.md](./docs/SERVICES.md)** — API сервисы и методы
+- **[docs/STORES.md](./docs/STORES.md)** — Pinia stores и управление состоянием
+- **[docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md)** — гайд для разработчиков
 
-Документация API: см. репозиторий backend и папку `docs`.
+## 🔐 Аутентификация
+
+- Использует **JWT токены** для авторизации
+- Токен сохраняется в `localStorage`
+- Автоматически добавляется в заголовок `Authorization: Bearer <token>` ко всем запросам
+
+## 👥 Роли пользователей
+
+- **STUDENT** — студент (роль по умолчанию)
+- **UNIVERSITY_STAFF** — модератор / сотрудник вуза
+- **ADMIN** — администратор платформы
+
+**Фильтрация проектов по ролям**:
+- Студент вуза → видит только проекты вуза
+- Школьник → видит только проекты школы
+- Админ / Сотрудник → видит все проекты
+
+## 🔗 API
+
+Приложение взаимодействует с backend API:
+
+- **Локально**: `http://localhost:3000`
+- **Продакшен**: `https://pd-projects-backend-production.up.railway.app`
+
+Подробнее: см. [docs/SERVICES.md](./docs/SERVICES.md)
+
+## 🧪 Тестирование
+
+При запуске backend с `npm run seed` доступны тестовые учётные записи:
+
+- `student@example.com` / `password123` — студент
+- `staff@example.com` / `password123` — модератор
+- `admin@example.com` / `password123` — администратор
+
+## 📝 Разработка
+
+Хочешь помочь с разработкой? Прочти [CONTRIBUTING.md](./docs/CONTRIBUTING.md):
+
+- Процесс разработки
+- Стиль кода
+- Как создавать компоненты
+- Как добавлять новые фичи
+
+## 📄 Лицензия
+
+MIT
+
+## 🤝 Связанные проекты
+
+- [Backend](https://github.com/IPodymov/pd-projects-backend) — NestJS API сервер
