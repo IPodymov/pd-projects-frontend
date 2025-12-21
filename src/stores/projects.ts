@@ -33,16 +33,15 @@ export const useProjectsStore = defineStore("projects", {
         });
         const data = await projectsService.list({ skipAuth: true });
 
-        const userInstType = auth.user?.group?.institution?.type as
-          | "UNIVERSITY"
-          | "SCHOOL"
-          | undefined;
+        const userInstType = (auth.user?.group?.institution?.type ||
+          auth.userTypePreference) as "UNIVERSITY" | "SCHOOL" | undefined;
         const isPrivileged = auth.isAdmin || auth.isStaff;
 
         // Клиентская фильтрация: студент/школьник видит проекты своего типа учреждения
-        this.items = !isPrivileged && userInstType
-          ? (data || []).filter((p) => p.institution?.type === userInstType)
-          : data;
+        this.items =
+          !isPrivileged && userInstType
+            ? (data || []).filter((p) => p.institution?.type === userInstType)
+            : data;
         console.log("[ProjectsStore] Проекты загружены:", this.items.length);
       } catch (e: any) {
         const status = e?.response?.status;

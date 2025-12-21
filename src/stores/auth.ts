@@ -14,6 +14,12 @@ export const useAuthStore = defineStore("auth", {
     user: null as UserProfile | null,
     loading: false as boolean,
     error: null as string | null,
+    userTypePreference: (typeof window !== "undefined"
+      ? (localStorage.getItem("userTypePreference") as
+          | "UNIVERSITY"
+          | "SCHOOL"
+          | null)
+      : null) || null,
   }),
   getters: {
     isAuthenticated: (s) => !!s.token,
@@ -31,6 +37,13 @@ export const useAuthStore = defineStore("auth", {
       if (typeof window !== "undefined") {
         if (token) localStorage.setItem("token", token);
         else localStorage.removeItem("token");
+      }
+    },
+    setUserTypePreference(type: "UNIVERSITY" | "SCHOOL" | null) {
+      this.userTypePreference = type;
+      if (typeof window !== "undefined") {
+        if (type) localStorage.setItem("userTypePreference", type);
+        else localStorage.removeItem("userTypePreference");
       }
     },
     async login(email: string, password: string) {
@@ -52,7 +65,12 @@ export const useAuthStore = defineStore("auth", {
     async register(
       email: string,
       password: string,
-      names?: { firstName?: string; lastName?: string; middleName?: string }
+      names?: {
+        firstName?: string;
+        lastName?: string;
+        middleName?: string;
+        userType?: "UNIVERSITY" | "SCHOOL";
+      }
     ) {
       this.loading = true;
       this.error = null;
@@ -63,6 +81,7 @@ export const useAuthStore = defineStore("auth", {
           ...names,
         });
         this.setToken(token);
+        if (names?.userType) this.setUserTypePreference(names.userType);
         await this.fetchProfile();
       } catch (e: any) {
         this.error = e?.response?.data?.message || "Ошибка регистрации";
