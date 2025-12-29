@@ -25,23 +25,26 @@ export const useProjectsStore = defineStore("projects", {
           } catch {}
         }
 
-        // Временно запрашиваем публично (skipAuth), чтобы обойти 500 на /projects с токеном студента
-        console.log("[ProjectsStore] Загружаю проекты (публично)...", {
+        // Теперь бекенд поддерживает кеширование и фильтрацию по ролям, поэтому передаем токен (без skipAuth)
+        console.log("[ProjectsStore] Загружаю проекты...", {
           isAuthenticated: auth.isAuthenticated,
           hasUser: !!auth.user,
           institutionType: auth.user?.group?.institution?.type,
         });
-        const data = await projectsService.list({ skipAuth: true });
 
-        const userInstType = (auth.user?.group?.institution?.type ||
-          auth.userTypePreference) as "UNIVERSITY" | "SCHOOL" | undefined;
+        // Передаем institutionId для студентов/школьников, чтобы бекенд мог корректно отфильтровать/закешировать
+        // (хотя бекенд должен уметь брать это из токена, явная передача может помочь избежать ошибок или улучшить кеширование)
         const isPrivileged = auth.isAdmin || auth.isStaff;
+        const institutionId = !isPrivileged
+          ? auth.user?.group?.institution?.id
+          : undefined;
 
-        // Клиентская фильтрация: студент/школьник видит проекты своего типа учреждения
-        this.items =
-          !isPrivileged && userInstType
-            ? (data || []).filter((p) => p.institution?.type === userInstType)
-            : data;
+        const data = await projectsService.list(
+          institutionId ? { institutionId } : {}
+        );
+
+        // Фильтрация теперь происходит на стороне сервера
+        this.items = data || [];
         console.log("[ProjectsStore] Проекты загружены:", this.items.length);
       } catch (e: any) {
         const status = e?.response?.status;
