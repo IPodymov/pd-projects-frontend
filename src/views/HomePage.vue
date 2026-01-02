@@ -2,28 +2,30 @@
 import { onMounted, computed, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ProjectList from "../components/ProjectList.vue";
-import { useAuthStore } from "../stores/auth";
-import { projectsService } from "../services/projects";
+import { useAuth, useProjects } from "../composables";
 
-const auth = useAuthStore();
+const { user } = useAuth();
+const { joinProject } = useProjects();
 const router = useRouter();
 const route = useRoute();
 const joiningError = ref("");
 
 const institutionInfo = computed(() => {
-  if (auth.user?.group?.institution) {
-    const inst = auth.user.group.institution;
+  if (user.value?.institution) {
+    const inst = user.value.institution;
     return `${inst.name} (${inst.type === "UNIVERSITY" ? "ВУЗ" : "Школа"})`;
   }
   return null;
 });
 
+const { isAuthenticated, isAdmin, isStaff } = useAuth();
+
 async function handleInvitationJoin() {
   const token = route.query.join as string;
-  if (!token || !auth.isAuthenticated) return;
+  if (!token || !isAuthenticated.value) return;
 
   try {
-    const project = await projectsService.joinProject(token);
+    const project = await joinProject(token);
     // Переходим на страницу проекта
     router.push({ name: "project-details", params: { id: project.id } });
   } catch (e: any) {
@@ -33,10 +35,8 @@ async function handleInvitationJoin() {
 }
 
 onMounted(async () => {
-  if (!auth.user && auth.token) await auth.fetchProfile();
-
   // Обработка приглашения если параметр join есть в URL
-  if (route.query.join && auth.isAuthenticated) {
+  if (route.query.join && isAuthenticated.value) {
     await handleInvitationJoin();
   }
 });
@@ -47,7 +47,7 @@ onMounted(async () => {
     <template v-if="joiningError">
       <div class="home__error">{{ joiningError }}</div>
     </template>
-    <template v-else-if="auth.isAuthenticated">
+    <template v-else-if="isAuthenticated">
       <section class="home__header">
         <h1 class="home__title">Проекты</h1>
         <div class="home__subline">
@@ -59,7 +59,7 @@ onMounted(async () => {
             }}
           </p>
           <router-link
-            v-if="auth.isAdmin || auth.isStaff"
+            v-if="isAdmin || isStaff"
             class="home__create"
             :to="{ name: 'project-create' }"
             >Добавить проект</router-link

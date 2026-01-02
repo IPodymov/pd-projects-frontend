@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "../stores/auth";
-import { projectsService, type ProjectLink } from "../services/projects";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import FormField from "../ui/FormField.vue";
+import { useProjects } from "../composables";
+import type { ProjectLink } from "../models";
+import { Input as UiInput, Button as UiButton, FormField } from "../ui/components";
 
-const auth = useAuthStore();
+const { createProject } = useProjects();
 const router = useRouter();
 
 const title = ref("");
@@ -15,10 +13,6 @@ const description = ref("");
 const links = ref<ProjectLink[]>([{ url: "" }]);
 const saving = ref(false);
 const error = ref("");
-
-onMounted(async () => {
-  if (!auth.user) await auth.fetchProfile();
-});
 
 function addLink() {
   links.value.push({ url: "" });
@@ -43,7 +37,7 @@ async function submit(e: Event) {
   error.value = "";
 
   try {
-    const created = await projectsService.create({
+    const created = await createProject({
       title: title.value,
       description: description.value,
       links: links.value.filter((l) => l.url.trim()),

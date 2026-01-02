@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { reactive, computed } from "vue";
-import { useRouter } from "vue-router";
-import { projectsService } from "../services/projects";
-import { useAuthStore } from "../stores/auth";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import FormField from "../ui/FormField.vue";
+import { reactive, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useProjects, useAuth } from '../composables';
+import { Input as UiInput, Button as UiButton, FormField } from '../ui/components';
 
 const router = useRouter();
-const auth = useAuthStore();
+const { isAdmin, isStaff } = useAuth();
+const { createProject } = useProjects();
 
 const form = reactive({
-  title: "",
-  description: "",
-  links: [{ url: "", description: "" }],
+  title: '',
+  description: '',
+  links: [{ url: '', description: '' }],
 });
-const error = reactive({ message: "" });
+const error = reactive({ message: '' });
 const loading = reactive({ submit: false });
 
-const canAccess = computed(() => auth.isAdmin || auth.isStaff);
+const canAccess = computed(() => isAdmin.value || isStaff.value);
 
 function addLink() {
-  form.links.push({ url: "", description: "" });
+  form.links.push({ url: '', description: '' });
 }
 function removeLink(idx: number) {
   if (form.links.length === 1) return;
@@ -32,16 +30,16 @@ async function submit(e: Event) {
   e.preventDefault();
   if (!canAccess.value) return;
   loading.submit = true;
-  error.message = "";
+  error.message = '';
   try {
-    const created = await projectsService.create({
+    const created = await createProject({
       title: form.title,
       description: form.description,
       links: form.links.filter((l) => l.url.trim()),
     });
-    router.push({ name: "project-details", params: { id: created.id } });
+    router.push({ name: 'project-details', params: { id: created.id } });
   } catch (e: any) {
-    error.message = e?.response?.data?.message || "Не удалось создать проект";
+    error.message = e?.response?.data?.message || 'Не удалось создать проект';
   } finally {
     loading.submit = false;
   }
@@ -64,29 +62,19 @@ async function submit(e: Event) {
             v-model="form.description"
             class="project-form__textarea"
             rows="5"
-            placeholder="Кратко опишите проект"
-          />
+            placeholder="Кратко опишите проект" />
         </FormField>
         <div class="project-form__links">
           <div class="project-form__links-header">
             <h3>Ссылки</h3>
-            <UiButton type="button" theme="secondary" @click="addLink"
-              >Добавить ссылку</UiButton
-            >
+            <UiButton type="button" theme="secondary" @click="addLink">Добавить ссылку</UiButton>
           </div>
-          <div
-            class="project-form__link"
-            v-for="(link, idx) in form.links"
-            :key="idx"
-          >
+          <div class="project-form__link" v-for="(link, idx) in form.links" :key="idx">
             <FormField label="URL">
               <UiInput v-model="link.url" placeholder="https://..." />
             </FormField>
             <FormField label="Описание">
-              <UiInput
-                v-model="link.description"
-                placeholder="Frontend / Backend"
-              />
+              <UiInput v-model="link.description" placeholder="Frontend / Backend" />
             </FormField>
             <UiButton
               type="button"
@@ -97,12 +85,8 @@ async function submit(e: Event) {
             >
           </div>
         </div>
-        <span v-if="error.message" class="project-form__error">{{
-          error.message
-        }}</span>
-        <UiButton type="submit" theme="primary" :disabled="loading.submit"
-          >Создать</UiButton
-        >
+        <span v-if="error.message" class="project-form__error">{{ error.message }}</span>
+        <UiButton type="submit" theme="primary" :disabled="loading.submit">Создать</UiButton>
       </form>
     </section>
   </main>

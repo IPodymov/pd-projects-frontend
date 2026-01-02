@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useAuthStore } from "../stores/auth";
+import { useAuth } from "../composables";
 import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 
-const auth = useAuthStore();
+const { isAuthenticated, isAdmin, isStaff, logout: authLogout } = useAuth();
 const router = useRouter();
 const { smAndDown } = useDisplay();
 
-const isAuth = computed(() => auth.isAuthenticated);
-const canManageUsers = computed(() => auth.isAdmin || auth.isStaff);
+const isAuth = computed(() => isAuthenticated.value);
+const canManageUsers = computed(() => isAdmin.value || isStaff.value);
 const isMobile = computed(() => smAndDown.value);
 const drawer = ref(false);
 
 function logout() {
-  auth.logout();
+  authLogout();
   router.push({ name: "home" });
   drawer.value = false;
 }

@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "../stores/auth";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import FormField from "../ui/FormField.vue";
+import { useAuth } from "../composables";
+import { Input as UiInput, Button as UiButton, FormField } from "../ui/components";
 
 const email = ref("");
 const password = ref("");
-const auth = useAuthStore();
+const { login } = useAuth();
 const router = useRouter();
 
 async function onSubmit(e: Event) {
   e.preventDefault();
   try {
-    await auth.login(email.value, password.value);
+    await login({ email: email.value, password: password.value });
     router.push({ name: "home" });
   } catch {}
 }

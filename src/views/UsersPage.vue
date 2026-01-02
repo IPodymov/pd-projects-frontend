@@ -1,28 +1,26 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
-import {
-  usersService,
-  type UserProfile,
-  type UpdateUserDto,
-} from "../services/users";
-import { useAuthStore } from "../stores/auth";
+import type { User, UpdateUserDto } from "../models";
+import { useUsers, useAuth } from "../composables";
 import UserEditDrawer from "../components/UserEditDrawer.vue";
+import { usersService } from "../services/users";
 
-const auth = useAuthStore();
-const users = ref<UserProfile[]>([]);
+const { isAdmin, isStaff } = useAuth();
+const users = ref<User[]>([]);
 const loading = ref(false);
 const error = ref("");
 
 const drawer = ref(false);
-const selected = ref<UserProfile | null>(null);
+const selected = ref<User | null>(null);
 
-const canEdit = computed(() => auth.isAdmin || auth.isStaff);
+const canEdit = computed(() => isAdmin.value || isStaff.value);
 
 async function fetchUsers() {
   loading.value = true;
   error.value = "";
   try {
-    users.value = await usersService.list();
+    const userData = await usersService.list();
+    users.value = userData as User[];
   } catch (e: any) {
     error.value =
       e?.response?.data?.message || "Не удалось загрузить пользователей";
@@ -31,7 +29,7 @@ async function fetchUsers() {
   }
 }
 
-function openEdit(u: UserProfile) {
+function openEdit(u: User) {
   if (!canEdit.value) return;
   selected.value = u;
   drawer.value = true;
@@ -41,8 +39,7 @@ async function save(dto: UpdateUserDto) {
   if (!selected.value) return;
   const updated = await usersService.update(selected.value.id, dto);
   const idx = users.value.findIndex((u) => u.id === updated.id);
-  if (idx !== -1) users.value[idx] = updated;
-  if (auth.user && auth.user.id === updated.id) auth.user = updated; // sync self
+  if (idx !== -1) users.value[idx] = updated as User;
   drawer.value = false;
 }
 

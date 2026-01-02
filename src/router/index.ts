@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
-const HomePage = () => import('../pages/HomePage.vue');
-const LoginPage = () => import('../pages/LoginPage.vue');
-const RegisterPage = () => import('../pages/RegisterPage.vue');
-const ProfilePage = () => import('../pages/ProfilePage.vue');
-const ProjectDetailsPage = () => import('../pages/ProjectDetailsPage.vue');
-const ProjectCreatePage = () => import('../pages/ProjectCreatePage.vue');
-const ProposalCreatePage = () => import('../pages/ProposalCreatePage.vue');
-const UsersPage = () => import('../pages/UsersPage.vue');
+const HomePage = () => import('../views/HomePage.vue');
+const LoginPage = () => import('../views/LoginPage.vue');
+const RegisterPage = () => import('../views/RegisterPage.vue');
+const ProfilePage = () => import('../views/ProfilePage.vue');
+const ProjectDetailsPage = () => import('../views/ProjectDetailsPage.vue');
+const ProjectCreatePage = () => import('../views/ProjectCreatePage.vue');
+const ProposalCreatePage = () => import('../views/ProposalCreatePage.vue');
+const UsersPage = () => import('../views/UsersPage.vue');
 
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: HomePage },

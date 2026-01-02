@@ -1,26 +1,43 @@
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
-import { useProjectsStore } from "../stores/projects";
+import { onMounted, computed, ref } from "vue";
 import ProjectCard from "./ProjectCard.vue";
-import { useAuthStore } from "../stores/auth";
+import { useAuth } from "../composables";
+import { projectsService, type Project } from "../services/projects";
 
-const projects = useProjectsStore();
-const auth = useAuthStore();
+const { user, isAdmin, isStaff } = useAuth();
+
+const items = ref<Project[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+async function fetchAll() {
+  loading.value = true;
+  error.value = null;
+  try {
+    items.value = await projectsService.list();
+  } catch (e: any) {
+    error.value = e?.response?.data?.message || 'Ошибка загрузки проектов';
+  } finally {
+    loading.value = false;
+  }
+}
 
 onMounted(() => {
-  if (!projects.items.length) projects.fetchAll();
+  if (!items.value.length) fetchAll();
 });
 
-function approve(id: number) {
-  projects.setStatus(id, "APPROVED");
+async function approve(id: number) {
+  await projectsService.update(id, { status: 'APPROVED' });
+  await fetchAll();
 }
-function reject(id: number) {
-  projects.setStatus(id, "REJECTED");
+async function reject(id: number) {
+  await projectsService.update(id, { status: 'REJECTED' });
+  await fetchAll();
 }
 
 const emptyText = computed(() => {
-  const instType = auth.user?.group?.institution?.type;
-  if (auth.isAdmin || auth.isStaff) return "Пока нет проектов";
+  const instType = user.value?.institution?.type;
+  if (isAdmin.value || isStaff.value) return "Пока нет проектов";
   if (instType === "UNIVERSITY") return "Пока нет проектов вашего вуза";
   if (instType === "SCHOOL") return "Пока нет проектов вашей школы";
   return "Пока нет связанных с вами проектов";
@@ -29,14 +46,14 @@ const emptyText = computed(() => {
 
 <template>
   <section class="project-list">
-    <div v-if="projects.loading">Загрузка...</div>
-    <div v-else-if="projects.error" class="project-list__error">
-      <span>{{ projects.error }}</span>
-      <button class="project-list__retry" @click="projects.fetchAll()">
+    <div v-if="loading">Загрузка...</div>
+    <div v-else-if="error" class="project-list__error">
+      <span>{{ error }}</span>
+      <button class="project-list__retry" @click="fetchAll()">
         Повторить
       </button>
     </div>
-    <div v-else-if="!projects.items.length" class="project-list__empty">
+    <div v-else-if="!items.length" class="project-list__empty">
       <h3 class="project-list__empty-title">{{ emptyText }}</h3>
       <p class="project-list__empty-text">
         Как только вы создадите или к вам добавят проект, он появится здесь.
@@ -44,7 +61,7 @@ const emptyText = computed(() => {
     </div>
     <div v-else class="project-list__grid">
       <ProjectCard
-        v-for="p in projects.items"
+        v-for="p in items"
         :key="p.id"
         :project="p"
         @approve="approve"

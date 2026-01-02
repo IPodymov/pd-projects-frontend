@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import {
-  projectsService,
-  type Project,
-  type ProjectStatus,
-} from "../services/projects";
-import { useAuthStore } from "../stores/auth";
-import UiButton from "../ui/Button.vue";
+import { projectsService } from "../services/projects";
+import type { Project, ProjectStatus } from "../models";
+import { useAuth } from "../composables";
+import { Button as UiButton } from "../ui/components";
 import ProjectInvite from "../components/ProjectInvite.vue";
 
 const route = useRoute();
-const auth = useAuthStore();
+const { user, isAdmin, isStaff } = useAuth();
 
 const project = ref<Project | null>(null);
 const loading = ref<boolean>(true);
@@ -20,12 +17,12 @@ const error = ref<string | null>(null);
 const canModerate = computed(
   () =>
     !!project.value &&
-    (auth.isAdmin || auth.isStaff) &&
+    (isAdmin.value || isStaff.value) &&
     project.value.status === "PENDING",
 );
 
 const isAuthor = computed(
-  () => !!project.value && auth.user?.id === project.value.author.id,
+  () => !!project.value && user.value?.id === project.value.author.id,
 );
 const canInvite = computed(
   () => !!project.value && (isAuthor.value || auth.isAdmin || auth.isStaff),

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { reactive, watch } from "vue";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import type { UserProfile, UpdateUserDto } from "../services/users";
+import { Input as UiInput, Button as UiButton } from "../ui/components";
+import type { User, UpdateUserDto } from "../models";
 
-const props = defineProps<{ modelValue: boolean; user: UserProfile | null }>();
+const props = defineProps<{ modelValue: boolean; user: User | null }>();
 const emit = defineEmits<{
   (e: "update:modelValue", v: boolean): void;
   (e: "save", dto: UpdateUserDto): void;

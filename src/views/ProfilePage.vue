@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useAuthStore } from "../stores/auth";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import FormField from "../ui/FormField.vue";
+import { useAuth } from "../composables";
+import { Input as UiInput, Button as UiButton, FormField } from "../ui/components";
 
-const auth = useAuthStore();
+const { user, updateProfile } = useAuth();
 
 const email = ref("");
 const firstName = ref("");
@@ -16,28 +14,27 @@ const saving = ref(false);
 const message = ref("");
 const error = ref("");
 const editing = ref(false);
-const roles = computed(() => auth.user?.roles?.map((r) => r.value) || []);
+const roles = computed(() => user.value?.roles || []);
 
 function fillFromStore() {
-  email.value = auth.user?.email || "";
-  firstName.value = auth.user?.firstName || "";
-  lastName.value = auth.user?.lastName || "";
-  middleName.value = auth.user?.middleName || "";
+  email.value = user.value?.email || "";
+  firstName.value = user.value?.getData().firstName || "";
+  lastName.value = user.value?.getData().lastName || "";
+  middleName.value = user.value?.getData().middleName || "";
 }
 
 onMounted(async () => {
-  if (!auth.user) await auth.fetchProfile();
   fillFromStore();
 });
 
 async function save(e: Event) {
   e.preventDefault();
-  if (!auth.user) return;
+  if (!user.value) return;
   saving.value = true;
   message.value = "";
   error.value = "";
   try {
-    await auth.updateProfile({
+    await updateProfile({
       email: email.value,
       firstName: firstName.value,
       lastName: lastName.value,

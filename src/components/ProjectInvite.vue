@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { Project } from "../services/projects";
+import type { Project } from "../models";
 import { projectsService } from "../services/projects";
-import { useAuthStore } from "../stores/auth";
+import { useAuth } from "../composables";
 // Removed local invite button; single invite button lives on details page
 
 const props = defineProps<{ project: Project }>();
 const emit = defineEmits<{ (e: "updated", p: Project): void }>();
 
-const auth = useAuthStore();
+const { user } = useAuth();
 
 const joiningToken = ref("");
 const joining = ref(false);
 const error = ref("");
 const message = ref("");
 
-const isAuthor = computed(() => auth.user?.id === props.project.author.id);
+const isAuthor = computed(() => user.value?.id === props.project.author.id);
 const isMember = computed(() => {
-  const uid = auth.user?.id;
+  const uid = user.value?.id;
   if (!uid) return false;
   return !!props.project.members?.some((m) => m.id === uid) || isAuthor.value;
 });

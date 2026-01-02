@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "../stores/auth";
-import UiInput from "../ui/Input.vue";
-import UiButton from "../ui/Button.vue";
-import FormField from "../ui/FormField.vue";
+import { useAuth } from "../composables";
+import { Input as UiInput, Button as UiButton, FormField } from "../ui/components";
 
 const email = ref("");
 const password = ref("");
@@ -13,13 +11,15 @@ const lastName = ref("");
 const middleName = ref("");
 const userType = ref<"UNIVERSITY" | "SCHOOL">("UNIVERSITY");
 
-const auth = useAuthStore();
+const { register } = useAuth();
 const router = useRouter();
 
 async function onSubmit(e: Event) {
   e.preventDefault();
   try {
-    await auth.register(email.value, password.value, {
+    await register({
+      email: email.value,
+      password: password.value,
       firstName: firstName.value,
       lastName: lastName.value,
       middleName: middleName.value,

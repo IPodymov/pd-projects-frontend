@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Project } from "../services/projects";
+import type { Project } from "../models";
 import { computed } from "vue";
-import { useAuthStore } from "../stores/auth";
+import { useAuth } from "../composables";
 
 const props = defineProps<{ project: Project }>();
 const emit = defineEmits<{
@@ -9,9 +9,9 @@ const emit = defineEmits<{
   (e: "reject", id: number): void;
 }>();
 
-const auth = useAuthStore();
+const { isAdmin, isStaff } = useAuth();
 const canModerate = computed(
-  () => (auth.isAdmin || auth.isStaff) && props.project.status === "PENDING",
+  () => (isAdmin.value || isStaff.value) && props.project.status === "PENDING",
 );
 </script>
 
