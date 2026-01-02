@@ -33,6 +33,7 @@ npm run seed
 ### Запуск локально
 
 **Terminal 1 — Backend:**
+
 ```bash
 cd pd-projects-backend
 npm run start:dev
@@ -40,6 +41,7 @@ npm run start:dev
 ```
 
 **Terminal 2 — Frontend:**
+
 ```bash
 cd pd-projects-front
 npm run dev
@@ -64,6 +66,7 @@ git checkout -b feature/название-фичи
 ```
 
 Примеры названий:
+
 - `feature/add-search` — новая фичка
 - `fix/project-loading-error` — исправление багов
 - `docs/update-readme` — документация
@@ -71,6 +74,7 @@ git checkout -b feature/название-фичи
 ### 2. Пиши код
 
 **Код должен**:
+
 - Быть типизирован (TypeScript)
 - Иметь понятные имена переменных
 - Следовать структуре проекта
@@ -79,17 +83,20 @@ git checkout -b feature/название-фичи
 **Примеры**:
 
 ✅ Хорошо:
+
 ```typescript
-const isUserAdmin = auth.roles.includes('ADMIN')
+const isUserAdmin = auth.roles.includes("ADMIN");
 if (isUserAdmin) {
-  showAdminPanel()
+  showAdminPanel();
 }
 ```
 
 ❌ Плохо:
+
 ```typescript
-if (u?.r?.i('A')) {  // непонятные имена
-  s()  // непонятно что это
+if (u?.r?.i("A")) {
+  // непонятные имена
+  s(); // непонятно что это
 }
 ```
 
@@ -105,6 +112,7 @@ git commit -m "feat: добавлена фильтрация проектов п
 Формат: `type: description`
 
 **Types**:
+
 - `feat` — новая фичка
 - `fix` — исправление
 - `docs` — документация
@@ -119,6 +127,7 @@ git push origin feature/название-фичи
 ```
 
 Затем создай Pull Request на GitHub с описанием:
+
 - Что изменилось?
 - Почему это нужно?
 - Как тестировать?
@@ -130,13 +139,13 @@ git push origin feature/название-фичи
 ```typescript
 // ✅ Типизируй всё
 interface User {
-  id: number
-  email: string
-  name?: string
+  id: number;
+  email: string;
+  name?: string;
 }
 
 // ❌ Не используй any
-const user: any = { id: 1 }
+const user: any = { id: 1 };
 ```
 
 ### Vue компоненты
@@ -144,10 +153,10 @@ const user: any = { id: 1 }
 ```vue
 <script setup lang="ts">
 // ✅ Используй Composition API с setup
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
 
-const count = ref(0)
-const doubled = computed(() => count.value * 2)
+const count = ref(0);
+const doubled = computed(() => count.value * 2);
 
 // ❌ Не используй Options API
 // export default {
@@ -160,23 +169,26 @@ const doubled = computed(() => count.value * 2)
 
 ```typescript
 // ✅ Понятные имена
-const isLoading = ref(false)
-const projectList = ref<Project[]>([])
-const getUserEmail = () => user.value?.email
+const isLoading = ref(false);
+const projectList = ref<Project[]>([]);
+const getUserEmail = () => user.value?.email;
 
 // ❌ Сокращения
-const isL = ref(false)
-const pl = ref([])
-const gUE = () => u?.e
+const isL = ref(false);
+const pl = ref([]);
+const gUE = () => u?.e;
 ```
 
 ### CSS
 
 ```css
 /* ✅ BEM нотация */
-.project-card { }
-.project-card__title { }
-.project-card__title_size_large { }
+.project-card {
+}
+.project-card__title {
+}
+.project-card__title_size_large {
+}
 
 /* ✅ Используй CSS переменные */
 .component {
@@ -197,10 +209,10 @@ const gUE = () => u?.e
 
 ```typescript
 // ✅ Логи с префиксом
-console.log('[ProjectsStore] Проекты загружены:', data.length)
+console.log("[ProjectsStore] Проекты загружены:", data.length);
 
 // ❌ Без контекста
-console.log('done')
+console.log("done");
 ```
 
 ### DevTools
@@ -238,6 +250,7 @@ useProjectsStore().items.length
 ```
 
 3. **Используй в навигации**:
+
 ```vue
 <router-link :to="{ name: 'my-page' }">My Page</router-link>
 ```
@@ -266,7 +279,7 @@ async search(query: string) {
 3. **Используй в компоненте**:
 
 ```typescript
-await projects.search('React')
+await projects.search("React");
 ```
 
 ### Добавить новый компонент
@@ -276,10 +289,10 @@ await projects.search('React')
 ```vue
 <script setup lang="ts">
 interface Props {
-  title: string
+  title: string;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>
 
 <template>
@@ -289,7 +302,8 @@ defineProps<Props>()
 </template>
 
 <style scoped>
-.my-component { }
+.my-component {
+}
 </style>
 ```
 
@@ -297,7 +311,7 @@ defineProps<Props>()
 
 ```vue
 <script setup lang="ts">
-import MyComponent from '@/components/MyComponent.vue'
+import MyComponent from "@/components/MyComponent.vue";
 </script>
 
 <template>
@@ -363,6 +377,7 @@ git push -f origin feature/название-фичи
 ## Принятие в проект
 
 PR будет рассмотрена если:
+
 - ✅ Код следует стилю проекта
 - ✅ Компилируется без ошибок (TypeScript)
 - ✅ Работает локально

@@ -25,13 +25,16 @@ ui/
 **Props**: нет
 
 **Состояние**:
+
 - `user` — текущий пользователь (из auth store)
 - `isMenuOpen` — открыто ли меню
 
 **Методы**:
+
 - `logout()` — выход из приложения
 
 **Пример использования**:
+
 ```vue
 <NavBar />
 ```
@@ -43,17 +46,21 @@ ui/
 **Props**: нет
 
 **Состояние**:
+
 - `projects.items` — массив проектов (из store)
 - `projects.loading` — идёт ли загрузка
 
 **Lifecycle**:
+
 - На `onMounted()` загружаются проекты: `projects.fetchAll()`
 
 **Events**:
+
 - `@approve="approve(id)"` — одобрить проект
 - `@reject="reject(id)"` — отклонить проект
 
 **Пример использования**:
+
 ```vue
 <ProjectList />
 ```
@@ -63,25 +70,29 @@ ui/
 Карточка проекта (миниатюра в списке).
 
 **Props**:
+
 ```typescript
 interface Props {
-  project: Project
+  project: Project;
 }
 ```
 
 **Emits**:
+
 ```typescript
 defineEmits<{
-  (e: 'approve', id: number): void
-  (e: 'reject', id: number): void
-}>()
+  (e: "approve", id: number): void;
+  (e: "reject", id: number): void;
+}>();
 ```
 
 **Функции**:
+
 - `canModerate` — может ли пользователь модерировать проект (admin или staff + status === PENDING)
 - `isAuthor` — текущий пользователь — автор проекта
 
 **Пример использования**:
+
 ```vue
 <ProjectCard
   :project="project"
@@ -95,20 +106,24 @@ defineEmits<{
 Компонент для создания приглашений в проект и управления приглашениями.
 
 **Props**:
+
 ```typescript
 interface Props {
-  project: Project
+  project: Project;
 }
 ```
 
 **Emits**:
+
 - `@updated="project = $event"` — проект обновился
 
 **Методы**:
+
 - `generateInviteToken()` — создать новое приглашение
 - `copyInviteLink()` — скопировать ссылку приглашения в буфер обмена
 
 **Использует**:
+
 - `projectsService.generateInvitation(id)` — создание токена на сервере
 
 ### UserEditDrawer.vue
@@ -116,19 +131,23 @@ interface Props {
 Drawer (выдвижная панель) для редактирования профиля пользователя.
 
 **Props**:
+
 ```typescript
 interface Props {
-  modelValue: boolean  // Открыт ли drawer
+  modelValue: boolean; // Открыт ли drawer
 }
 ```
 
 **Emits**:
+
 - `@update:modelValue="value"` — закрыть drawer
 
 **Функции**:
+
 - `updateProfile()` — отправить изменения профиля на сервер
 
 **Использует**:
+
 - `auth.updateProfile()` — обновление профиля в store
 
 ## UI компоненты
@@ -138,18 +157,21 @@ interface Props {
 Универсальная кнопка.
 
 **Props**:
+
 ```typescript
 interface Props {
-  theme?: 'primary' | 'secondary' | 'danger'  // Стиль кнопки
-  disabled?: boolean                           // Отключена ли
-  type?: 'button' | 'submit' | 'reset'        // HTML type
+  theme?: "primary" | "secondary" | "danger"; // Стиль кнопки
+  disabled?: boolean; // Отключена ли
+  type?: "button" | "submit" | "reset"; // HTML type
 }
 ```
 
 **Slots**:
+
 - `default` — содержимое кнопки
 
 **Пример**:
+
 ```vue
 <UiButton theme="primary" @click="submit" :disabled="loading">
   {{ loading ? 'Загрузка...' : 'Отправить' }}
@@ -161,25 +183,24 @@ interface Props {
 Текстовое поле ввода.
 
 **Props**:
+
 ```typescript
 interface Props {
-  modelValue: string | number
-  placeholder?: string
-  type?: 'text' | 'email' | 'password' | 'number'
-  disabled?: boolean
+  modelValue: string | number;
+  placeholder?: string;
+  type?: "text" | "email" | "password" | "number";
+  disabled?: boolean;
 }
 ```
 
 **Events**:
+
 - `@update:modelValue="value"` — (v-model)
 
 **Пример**:
+
 ```vue
-<UiInput
-  v-model="email"
-  type="email"
-  placeholder="user@example.com"
-/>
+<UiInput v-model="email" type="email" placeholder="user@example.com" />
 ```
 
 ### FormField.vue
@@ -187,18 +208,21 @@ interface Props {
 Обёртка для поля формы (label + input + error).
 
 **Props**:
+
 ```typescript
 interface Props {
-  label: string      // Заголовок поля
-  error?: string     // Сообщение об ошибке
-  required?: boolean // Обязательное ли поле
+  label: string; // Заголовок поля
+  error?: string; // Сообщение об ошибке
+  required?: boolean; // Обязательное ли поле
 }
 ```
 
 **Slots**:
+
 - `default` — содержимое (обычно `<UiInput />`)
 
 **Пример**:
+
 ```vue
 <FormField label="Email" error="Email обязателен">
   <UiInput v-model="email" type="email" />
@@ -209,17 +233,18 @@ interface Props {
 
 1. **Создай файл** в нужной папке (`components/` или `ui/`)
 2. **Используй Composition API**:
+
    ```vue
    <script setup lang="ts">
-   import { ref } from 'vue'
+   import { ref } from "vue";
 
    interface Props {
-     title: string
+     title: string;
    }
 
-   defineProps<Props>()
+   defineProps<Props>();
 
-   const isOpen = ref(false)
+   const isOpen = ref(false);
    </script>
 
    <template>
@@ -230,14 +255,16 @@ interface Props {
    </template>
 
    <style scoped>
-   .component { }
+   .component {
+   }
    </style>
    ```
 
 3. **Импортируй в родительский компонент**:
+
    ```vue
    <script setup lang="ts">
-   import MyComponent from '@/components/MyComponent.vue'
+   import MyComponent from "@/components/MyComponent.vue";
    </script>
 
    <template>
@@ -248,11 +275,13 @@ interface Props {
 ## Стили
 
 Компоненты используют:
+
 - **Scoped CSS** (`<style scoped>`) — стили применяются только к компоненту
 - **CSS переменные** (`--space-4`, `--color-primary`, etc.) — из `src/style.css`
 - **BEM нотация** для классов: `.component-name__element_modifier`
 
 **Переменные CSS**:
+
 ```css
 --space-1, --space-2, --space-3, --space-4, --space-5, --space-6
 --color-primary, --color-danger, --color-success
@@ -267,7 +296,7 @@ interface Props {
 ```vue
 <!-- Button.vue -->
 <template>
-  <button class="btn" :class="[ `btn_theme_${theme}` ]">
+  <button class="btn" :class="[`btn_theme_${theme}`]">
     <slot />
   </button>
 </template>

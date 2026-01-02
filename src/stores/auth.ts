@@ -14,12 +14,13 @@ export const useAuthStore = defineStore("auth", {
     user: null as UserProfile | null,
     loading: false as boolean,
     error: null as string | null,
-    userTypePreference: (typeof window !== "undefined"
-      ? (localStorage.getItem("userTypePreference") as
-          | "UNIVERSITY"
-          | "SCHOOL"
-          | null)
-      : null) || null,
+    userTypePreference:
+      (typeof window !== "undefined"
+        ? (localStorage.getItem("userTypePreference") as
+            | "UNIVERSITY"
+            | "SCHOOL"
+            | null)
+        : null) || null,
   }),
   getters: {
     isAuthenticated: (s) => !!s.token,
@@ -70,7 +71,7 @@ export const useAuthStore = defineStore("auth", {
         lastName?: string;
         middleName?: string;
         userType?: "UNIVERSITY" | "SCHOOL";
-      }
+      },
     ) {
       this.loading = true;
       this.error = null;

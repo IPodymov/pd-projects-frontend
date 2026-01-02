@@ -34,12 +34,12 @@ stores/
 
 ```typescript
 state: () => ({
-  token: string | null,              // JWT токен
-  user: UserProfile | null,          // Профиль пользователя
-  loading: boolean,                  // Идёт ли операция
-  error: string | null,              // Сообщение об ошибке
-  userTypePreference: 'UNIVERSITY' | 'SCHOOL' | null  // Предпочтение при регистрации
-})
+  token: string | null, // JWT токен
+  user: UserProfile | null, // Профиль пользователя
+  loading: boolean, // Идёт ли операция
+  error: string | null, // Сообщение об ошибке
+  userTypePreference: "UNIVERSITY" | "SCHOOL" | null, // Предпочтение при регистрации
+});
 ```
 
 ### Getters
@@ -52,11 +52,12 @@ isStaff: boolean         // Есть ли роль UNIVERSITY_STAFF
 ```
 
 **Примеры**:
+
 ```typescript
-const auth = useAuthStore()
+const auth = useAuthStore();
 
 if (auth.isAuthenticated) {
-  console.log('Пользователь залогинен')
+  console.log("Пользователь залогинен");
 }
 
 if (auth.isAdmin) {
@@ -71,7 +72,7 @@ if (auth.isAdmin) {
 Установить токен и сохранить в localStorage.
 
 ```typescript
-auth.setToken('eyJhbGciOi...')
+auth.setToken("eyJhbGciOi...");
 // localStorage.token теперь "eyJhbGciOi..."
 ```
 
@@ -80,7 +81,7 @@ auth.setToken('eyJhbGciOi...')
 Сохранить предпочтение типа пользователя.
 
 ```typescript
-auth.setUserTypePreference('UNIVERSITY')
+auth.setUserTypePreference("UNIVERSITY");
 ```
 
 #### login(email: string, password: string): Promise<void>
@@ -89,14 +90,15 @@ auth.setUserTypePreference('UNIVERSITY')
 
 ```typescript
 try {
-  await auth.login('user@example.com', 'password123')
+  await auth.login("user@example.com", "password123");
   // Токен сохранён, профиль загружен
 } catch (e) {
-  console.log(auth.error)  // "Неверные учётные данные"
+  console.log(auth.error); // "Неверные учётные данные"
 }
 ```
 
 **Процесс**:
+
 1. Отправляет POST /auth/login
 2. Получает токен
 3. Сохраняет в localStorage
@@ -107,11 +109,11 @@ try {
 Регистрация пользователя.
 
 ```typescript
-await auth.register('newuser@example.com', 'password123', {
-  firstName: 'John',
-  lastName: 'Doe',
-  userType: 'UNIVERSITY'
-})
+await auth.register("newuser@example.com", "password123", {
+  firstName: "John",
+  lastName: "Doe",
+  userType: "UNIVERSITY",
+});
 ```
 
 #### fetchProfile(): Promise<void>
@@ -119,8 +121,8 @@ await auth.register('newuser@example.com', 'password123', {
 Загрузить профиль текущего пользователя (требуется токен).
 
 ```typescript
-await auth.fetchProfile()
-console.log(auth.user?.firstName)
+await auth.fetchProfile();
+console.log(auth.user?.firstName);
 ```
 
 **Используется**: при инициализации приложения, если токен есть в localStorage.
@@ -131,9 +133,9 @@ console.log(auth.user?.firstName)
 
 ```typescript
 const updated = await auth.updateProfile({
-  firstName: 'Jane',
-  lastName: 'Smith'
-})
+  firstName: "Jane",
+  lastName: "Smith",
+});
 ```
 
 #### changePassword(password: string): Promise<UserProfile>
@@ -141,7 +143,7 @@ const updated = await auth.updateProfile({
 Изменить пароль (используя updateProfile).
 
 ```typescript
-await auth.changePassword('newpassword123')
+await auth.changePassword("newpassword123");
 ```
 
 #### logout(): void
@@ -149,7 +151,7 @@ await auth.changePassword('newpassword123')
 Выход: очистить токен, профиль и состояние.
 
 ```typescript
-auth.logout()
+auth.logout();
 // localStorage.token удалён
 // auth.user = null
 ```
@@ -158,16 +160,16 @@ auth.logout()
 
 ```vue
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from "@/stores/auth";
 
-const auth = useAuthStore()
+const auth = useAuthStore();
 
 async function handleLogin(email: string, password: string) {
   try {
-    await auth.login(email, password)
+    await auth.login(email, password);
     // Успешно
   } catch (e) {
-    console.log(auth.error)  // Ошибка
+    console.log(auth.error); // Ошибка
   }
 }
 </script>
@@ -204,8 +206,8 @@ state: () => ({
 Загрузить проекты и применить фильтрацию по роли пользователя.
 
 ```typescript
-const projects = useProjectsStore()
-await projects.fetchAll()
+const projects = useProjectsStore();
+await projects.fetchAll();
 // projects.items содержит отфильтрованный список
 ```
 
@@ -217,16 +219,17 @@ await projects.fetchAll()
 
 Если обычный пользователь (студент/школьник):
   → показываем только проекты типа его учреждения
-  
+
 Тип определяется из:
   1. user.group.institution.type (если есть группа)
   2. userTypePreference (сохранено при регистрации)
 ```
 
 **Пример**:
+
 ```typescript
-const projects = useProjectsStore()
-await projects.fetchAll()
+const projects = useProjectsStore();
+await projects.fetchAll();
 
 // Для студента ВУЗа:
 // projects.items = [
@@ -239,11 +242,12 @@ await projects.fetchAll()
 ```
 
 **Обработка ошибок**:
+
 ```typescript
 try {
-  await projects.fetchAll()
+  await projects.fetchAll();
 } catch (e) {
-  console.log(projects.error)  // "Ошибка сервера: ..."
+  console.log(projects.error); // "Ошибка сервера: ..."
 }
 ```
 
@@ -252,7 +256,7 @@ try {
 Изменить статус проекта (PENDING → APPROVED/REJECTED).
 
 ```typescript
-const updated = await projects.setStatus(123, 'APPROVED')
+const updated = await projects.setStatus(123, "APPROVED");
 // Проект с id=123 теперь имеет status='APPROVED'
 ```
 
@@ -262,16 +266,16 @@ const updated = await projects.setStatus(123, 'APPROVED')
 
 ```vue
 <script setup lang="ts">
-import { useProjectsStore } from '@/stores/projects'
+import { useProjectsStore } from "@/stores/projects";
 
-const projects = useProjectsStore()
+const projects = useProjectsStore();
 
 // При монтировании компонента
 onMounted(() => {
   if (!projects.items.length) {
-    projects.fetchAll()
+    projects.fetchAll();
   }
-})
+});
 </script>
 
 <template>
@@ -280,9 +284,7 @@ onMounted(() => {
     <p>{{ projects.error }}</p>
     <button @click="projects.fetchAll">Повторить</button>
   </div>
-  <div v-else-if="!projects.items.length" class="empty">
-    Пока нет проектов
-  </div>
+  <div v-else-if="!projects.items.length" class="empty">Пока нет проектов</div>
   <div v-else>
     <ul>
       <li v-for="p in projects.items" :key="p.id">
@@ -298,14 +300,14 @@ onMounted(() => {
 1. **Создай файл** `src/stores/mystore.ts`:
 
 ```typescript
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
 interface MyState {
-  data: string[]
-  loading: boolean
+  data: string[];
+  loading: boolean;
 }
 
-export const useMyStore = defineStore('my', {
+export const useMyStore = defineStore("my", {
   state: (): MyState => ({
     data: [],
     loading: false,
@@ -317,35 +319,35 @@ export const useMyStore = defineStore('my', {
 
   actions: {
     async loadData() {
-      this.loading = true
+      this.loading = true;
       try {
         // Получи данные
-        this.data = await fetchData()
+        this.data = await fetchData();
       } catch (e) {
-        console.error(e)
+        console.error(e);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     addItem(item: string) {
-      this.data.push(item)
+      this.data.push(item);
     },
   },
-})
+});
 ```
 
 2. **Используй в компоненте**:
 
 ```vue
 <script setup lang="ts">
-import { useMyStore } from '@/stores/mystore'
+import { useMyStore } from "@/stores/mystore";
 
-const store = useMyStore()
+const store = useMyStore();
 
 onMounted(() => {
-  store.loadData()
-})
+  store.loadData();
+});
 </script>
 
 <template>

@@ -27,7 +27,7 @@ watch(
     state.middleName = u?.middleName || "";
     state.password = "";
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function close() {

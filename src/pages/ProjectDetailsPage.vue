@@ -21,14 +21,14 @@ const canModerate = computed(
   () =>
     !!project.value &&
     (auth.isAdmin || auth.isStaff) &&
-    project.value.status === "PENDING"
+    project.value.status === "PENDING",
 );
 
 const isAuthor = computed(
-  () => !!project.value && auth.user?.id === project.value.author.id
+  () => !!project.value && auth.user?.id === project.value.author.id,
 );
 const canInvite = computed(
-  () => !!project.value && (isAuthor.value || auth.isAdmin || auth.isStaff)
+  () => !!project.value && (isAuthor.value || auth.isAdmin || auth.isStaff),
 );
 
 const inviteToken = ref<string | null>(null);
@@ -46,7 +46,9 @@ async function generateInviteToken() {
   inviteLoading.value = true;
   inviteError.value = null;
   try {
-    const { token } = await projectsService.generateInvitation(project.value.id);
+    const { token } = await projectsService.generateInvitation(
+      project.value.id,
+    );
     inviteToken.value = token;
   } catch (e: any) {
     inviteError.value =
@@ -57,7 +59,11 @@ async function generateInviteToken() {
 }
 
 function copyInviteLink() {
-  if (inviteLink.value && typeof navigator !== "undefined" && navigator.clipboard) {
+  if (
+    inviteLink.value &&
+    typeof navigator !== "undefined" &&
+    navigator.clipboard
+  ) {
     navigator.clipboard.writeText(inviteLink.value);
   }
 }
@@ -104,7 +110,9 @@ onMounted(() => {
           <p class="project__meta">
             Автор: {{ project.author.firstName || project.author.email }}
             <template v-if="project.institution">
-              · {{ project.institution.name }} ({{ project.institution.type === 'UNIVERSITY' ? 'ВУЗ' : 'Школа' }})
+              · {{ project.institution.name }} ({{
+                project.institution.type === "UNIVERSITY" ? "ВУЗ" : "Школа"
+              }})
             </template>
           </p>
         </div>
@@ -145,44 +153,52 @@ onMounted(() => {
           </UiButton>
           <template v-if="inviteToken">
             <code class="project__invite-link">{{ inviteLink }}</code>
-            <UiButton theme="secondary" @click="copyInviteLink">Копировать</UiButton>
+            <UiButton theme="secondary" @click="copyInviteLink"
+              >Копировать</UiButton
+            >
           </template>
         </div>
         <p v-if="inviteError" class="project__error">{{ inviteError }}</p>
       </section>
-          <section class="project__team" v-if="project">
-            <h3>Команда</h3>
-            <div class="project__team-list">
-              <span class="project__chip project__chip_author">
-                {{ project.author.firstName || project.author.email }}
-                <small class="project__chip-badge">Автор</small>
-              </span>
-              <span
-                v-for="m in (project.members || [])"
-                :key="m.id"
-                class="project__chip"
-              >
-                {{ m.firstName || m.email }}
-              </span>
-            </div>
-          </section>
-          <section class="project__history" v-if="project?.history">
-            <h3>История изменений</h3>
-            <p v-if="!project.history?.length" class="project__history-empty">
-              История пока пуста
-            </p>
-            <ul v-else class="project__history-list">
-              <li v-for="(h, i) in project.history" :key="h.id || i" class="project__history-item">
-                <span class="project__history-date">
-                  {{ h.createdAt ? new Date(h.createdAt).toLocaleString() : "" }}
-                </span>
-                <span class="project__history-user">
-                  {{ h.changedBy?.firstName || h.changedBy?.email || "Система" }}
-                </span>
-                <span class="project__history-action">— {{ h.changes ? 'Обновление полей' : 'Изменение' }}</span>
-              </li>
-            </ul>
-          </section>
+      <section class="project__team" v-if="project">
+        <h3>Команда</h3>
+        <div class="project__team-list">
+          <span class="project__chip project__chip_author">
+            {{ project.author.firstName || project.author.email }}
+            <small class="project__chip-badge">Автор</small>
+          </span>
+          <span
+            v-for="m in project.members || []"
+            :key="m.id"
+            class="project__chip"
+          >
+            {{ m.firstName || m.email }}
+          </span>
+        </div>
+      </section>
+      <section class="project__history" v-if="project?.history">
+        <h3>История изменений</h3>
+        <p v-if="!project.history?.length" class="project__history-empty">
+          История пока пуста
+        </p>
+        <ul v-else class="project__history-list">
+          <li
+            v-for="(h, i) in project.history"
+            :key="h.id || i"
+            class="project__history-item"
+          >
+            <span class="project__history-date">
+              {{ h.createdAt ? new Date(h.createdAt).toLocaleString() : "" }}
+            </span>
+            <span class="project__history-user">
+              {{ h.changedBy?.firstName || h.changedBy?.email || "Система" }}
+            </span>
+            <span class="project__history-action"
+              >— {{ h.changes ? "Обновление полей" : "Изменение" }}</span
+            >
+          </li>
+        </ul>
+      </section>
       <ProjectInvite :project="project" @updated="project = $event" />
     </section>
   </main>

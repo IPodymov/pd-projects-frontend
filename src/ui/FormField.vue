@@ -13,10 +13,22 @@ const props = defineProps<{ label: string; error?: string }>();
 </template>
 
 <style scoped>
-.form-field { display: grid; gap: var(--space-2); }
-.form-field__label { font-size: 13px; color: var(--muted); font-weight: 500; }
-.form-field__error { font-size: 12px; color: #dc2626; }
+.form-field {
+  display: grid;
+  gap: var(--space-2);
+}
+.form-field__label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.form-field__error {
+  font-size: 12px;
+  color: #dc2626;
+}
 @media (min-width: 768px) {
-  .form-field__label { font-size: 14px; }
+  .form-field__label {
+    font-size: 14px;
+  }
 }
 </style>

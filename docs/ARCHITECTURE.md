@@ -40,6 +40,7 @@
 Vue компоненты, отвечающие за UI. Взаимодействуют со stores через Composition API.
 
 **Примеры**:
+
 - `RegisterPage.vue` — форма регистрации
 - `ProjectList.vue` — список проектов
 - `ProjectCard.vue` — карточка проекта
@@ -51,20 +52,21 @@ Vue компоненты, отвечающие за UI. Взаимодейств
 Глобальное состояние приложения. Используется для управления данными, которые нужны в разных компонентах.
 
 **Stores**:
+
 - `auth.ts` — состояние пользователя, токен, методы login/register
 - `projects.ts` — список проектов, загрузка, фильтрация
 
 **Принцип**: Компоненты подписываются на изменения stores через composition API:
 
 ```typescript
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from "../stores/auth";
 
 export default {
   setup() {
-    const auth = useAuthStore()
-    return { auth } // auth.user, auth.isAuthenticated и т.д.
-  }
-}
+    const auth = useAuthStore();
+    return { auth }; // auth.user, auth.isAuthenticated и т.д.
+  },
+};
 ```
 
 ### 3. Слой сервисов (API Services)
@@ -74,6 +76,7 @@ export default {
 Инкапсулирует логику взаимодействия с API. Каждый сервис отвечает за один домен (auth, projects, users).
 
 **Services**:
+
 - `api.ts` — базовый axios клиент с интерцептором для JWT
 - `auth.ts` — эндпоинты для регистрации и логина
 - `projects.ts` — операции с проектами (создание, загрузка, обновление)
@@ -104,12 +107,12 @@ Axios клиент с автоматическим добавлением JWT т
 
 ```typescript
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 ```
 
 ## Data Flow (поток данных)
@@ -151,16 +154,19 @@ api.interceptors.request.use((config) => {
 
 ```typescript
 // Логика фильтрации
-const userInstType = (auth.user?.group?.institution?.type || auth.userTypePreference)
-const isPrivileged = auth.isAdmin || auth.isStaff
+const userInstType =
+  auth.user?.group?.institution?.type || auth.userTypePreference;
+const isPrivileged = auth.isAdmin || auth.isStaff;
 
 // Для студентов/школьников: фильтруем проекты по типу их учреждения
-this.items = !isPrivileged && userInstType
-  ? (data || []).filter((p) => p.institution?.type === userInstType)
-  : data
+this.items =
+  !isPrivileged && userInstType
+    ? (data || []).filter((p) => p.institution?.type === userInstType)
+    : data;
 ```
 
 **Как работает**:
+
 1. Если пользователь имеет роль `ADMIN` или `UNIVERSITY_STAFF` → видит ВСЕ проекты
 2. Если обычный пользователь (студент/школьник) → видит только проекты своего типа учреждения
 3. Тип определяется из `user.group.institution.type` или из сохранённого при регистрации `userTypePreference`
@@ -171,39 +177,48 @@ this.items = !isPrivileged && userInstType
 
 ```typescript
 // Auth
-interface LoginDto { email: string; password: string }
-interface AuthResponse { token: string }
+interface LoginDto {
+  email: string;
+  password: string;
+}
+interface AuthResponse {
+  token: string;
+}
 
 // User
 interface UserProfile {
-  id: number
-  email: string
-  firstName?: string
-  roles?: { id: number; value: string }[]
-  group?: StudentGroup
+  id: number;
+  email: string;
+  firstName?: string;
+  roles?: { id: number; value: string }[];
+  group?: StudentGroup;
 }
 
 // Institution & Group
-interface Institution { id: number; name: string; type: 'UNIVERSITY' | 'SCHOOL' }
+interface Institution {
+  id: number;
+  name: string;
+  type: "UNIVERSITY" | "SCHOOL";
+}
 interface StudentGroup {
-  id: number
-  name: string
-  grade?: number
-  institution: Institution
+  id: number;
+  name: string;
+  grade?: number;
+  institution: Institution;
 }
 
 // Project
 interface Project {
-  id: number
-  title: string
-  description: string
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
-  author: UserRef
-  institution?: Institution
-  members?: UserRef[]
-  links: ProjectLink[]
-  createdAt: string
-  updatedAt: string
+  id: number;
+  title: string;
+  description: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  author: UserRef;
+  institution?: Institution;
+  members?: UserRef[];
+  links: ProjectLink[];
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
@@ -213,13 +228,21 @@ interface Project {
 
 ```typescript
 const routes = [
-  { path: '/', name: 'home', component: HomePage },
-  { path: '/login', name: 'login', component: LoginPage },
-  { path: '/register', name: 'register', component: RegisterPage },
-  { path: '/projects/:id', name: 'project-details', component: ProjectDetailsPage },
-  { path: '/projects/create', name: 'project-create', component: ProjectCreatePage },
+  { path: "/", name: "home", component: HomePage },
+  { path: "/login", name: "login", component: LoginPage },
+  { path: "/register", name: "register", component: RegisterPage },
+  {
+    path: "/projects/:id",
+    name: "project-details",
+    component: ProjectDetailsPage,
+  },
+  {
+    path: "/projects/create",
+    name: "project-create",
+    component: ProjectCreatePage,
+  },
   // ...
-]
+];
 ```
 
 Навигация: `router.push({ name: 'home' })` или `<router-link to="{ name: 'home' }" />`
@@ -247,14 +270,14 @@ const routes = [
 
 ```typescript
 try {
-  const data = await projectsService.list()
+  const data = await projectsService.list();
 } catch (e: any) {
   if (e?.response?.status === 401) {
     // Токен истёк
-    auth.logout()
+    auth.logout();
   } else if (e?.response?.status === 500) {
     // Ошибка сервера
-    this.error = 'Ошибка сервера'
+    this.error = "Ошибка сервера";
   }
 }
 ```

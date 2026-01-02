@@ -40,7 +40,7 @@ export const useProjectsStore = defineStore("projects", {
           : undefined;
 
         const data = await projectsService.list(
-          institutionId ? { institutionId } : {}
+          institutionId ? { institutionId } : {},
         );
 
         // Фильтрация теперь происходит на стороне сервера

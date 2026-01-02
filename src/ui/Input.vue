@@ -8,7 +8,7 @@ const props = withDefaults(
     readonly?: boolean;
     label?: string;
   }>(),
-  { type: "text" }
+  { type: "text" },
 );
 const emit = defineEmits<{ (e: "update:modelValue", v: string): void }>();
 </script>
@@ -25,7 +25,7 @@ const emit = defineEmits<{ (e: "update:modelValue", v: string): void }>();
     :disabled="props.disabled"
     :readonly="props.readonly"
     :model-value="props.modelValue"
-    @update:model-value="(v:any) => emit('update:modelValue', v as string)"
+    @update:model-value="(v: any) => emit('update:modelValue', v as string)"
   />
 </template>
 

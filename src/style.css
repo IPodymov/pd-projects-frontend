@@ -97,8 +97,16 @@
   --bg: var(--color-bg);
   --border: var(--color-border);
 
-  font-family: "Onest", system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-    Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family:
+    "Onest",
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
   line-height: 1.5;
   font-weight: 400;
   color: var(--text);

@@ -22,7 +22,7 @@ const isMember = computed(() => {
   return !!props.project.members?.some((m) => m.id === uid) || isAuthor.value;
 });
 const memberCount = computed(
-  () => (props.project.members?.length || 0) + 1 // +1 для автора
+  () => (props.project.members?.length || 0) + 1, // +1 для автора
 );
 async function joinByToken() {
   if (!joiningToken.value.trim()) {
@@ -58,12 +58,14 @@ async function joinByToken() {
     <div class="project-invite__members">
       <div class="project-invite__member">
         <span class="project-invite__member-name">{{
-          project.author?.firstName || project.author?.email || "Неизвестный автор"
+          project.author?.firstName ||
+          project.author?.email ||
+          "Неизвестный автор"
         }}</span>
         <span class="project-invite__member-role">Автор</span>
       </div>
       <div
-        v-for="member in (project.members || [])"
+        v-for="member in project.members || []"
         :key="member.id"
         class="project-invite__member"
       >

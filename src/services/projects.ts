@@ -89,7 +89,7 @@ export const projectsService = {
   async generateInvitation(id: number): Promise<{ token: string }> {
     const { data } = await api.post<{ token: string }>(
       `/projects/${id}/invitation`,
-      {}
+      {},
     );
     return data;
   },

@@ -6,6 +6,7 @@
 - **npm** >= 9.0.0 (или yarn, pnpm)
 
 Проверь версию:
+
 ```bash
 node --version
 npm --version
@@ -58,24 +59,29 @@ npm run preview
 ## Запуск с локальным бэкендом
 
 1. **Запусти бэкенд**:
+
    ```bash
    cd ../pd-projects-backend
    npm install
    npm run start:dev
    ```
+
    Бэкенд запустится на http://localhost:3000
 
 2. **Убедись, что в `.env` фронта установлено**:
+
    ```env
    VITE_API_BASE_URL=http://localhost:3000/
    ```
 
 3. **Запусти фронт**:
+
    ```bash
    npm run dev
    ```
 
 4. **Заполни БД тестовыми данными** (в папке бэкенда):
+
    ```bash
    npm run seed
    ```
@@ -104,6 +110,7 @@ npm run format    # Форматирование кода (если настро
 ### Полезные логи
 
 В консоли ищи префиксы:
+
 - `[ProjectsStore]` — загрузка проектов
 - `[AuthStore]` — авторизация
 
@@ -134,7 +141,7 @@ npm run dev -- --port 3001
 
 ```javascript
 // В консоли браузера:
-localStorage.removeItem('token');
+localStorage.removeItem("token");
 location.reload();
 ```
 

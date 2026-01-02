@@ -23,9 +23,9 @@ services/
 ### Конфигурация
 
 ```typescript
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/'
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/";
 
-const api = axios.create({ baseURL, withCredentials: false })
+const api = axios.create({ baseURL, withCredentials: false });
 ```
 
 ### Интерцепторы
@@ -34,33 +34,33 @@ const api = axios.create({ baseURL, withCredentials: false })
 
 ```typescript
 api.interceptors.request.use((config) => {
-  const skipAuth = (config as any).skipAuth
-  if (skipAuth) return config
+  const skipAuth = (config as any).skipAuth;
+  if (skipAuth) return config;
 
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 ```
 
 ### Использование
 
 ```typescript
-import api from '@/services/api'
+import api from "@/services/api";
 
 // GET
-const { data } = await api.get('/projects')
+const { data } = await api.get("/projects");
 
 // POST
-const { data } = await api.post('/projects', { title: 'New' })
+const { data } = await api.post("/projects", { title: "New" });
 
 // PATCH
-const { data } = await api.patch(`/projects/${id}`, { title: 'Updated' })
+const { data } = await api.patch(`/projects/${id}`, { title: "Updated" });
 
 // DELETE
-await api.delete(`/projects/${id}`)
+await api.delete(`/projects/${id}`);
 ```
 
 ## auth.ts — Authentication
@@ -69,21 +69,21 @@ await api.delete(`/projects/${id}`)
 
 ```typescript
 interface LoginDto {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 interface RegisterDto {
-  email: string
-  password: string
-  firstName?: string
-  lastName?: string
-  middleName?: string
-  userType?: 'UNIVERSITY' | 'SCHOOL'
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  userType?: "UNIVERSITY" | "SCHOOL";
 }
 
 interface AuthResponse {
-  token: string
+  token: string;
 }
 ```
 
@@ -95,9 +95,9 @@ interface AuthResponse {
 
 ```typescript
 const { token } = await authService.login({
-  email: 'user@example.com',
-  password: 'password123'
-})
+  email: "user@example.com",
+  password: "password123",
+});
 // token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -107,12 +107,12 @@ const { token } = await authService.login({
 
 ```typescript
 const { token } = await authService.register({
-  email: 'newuser@example.com',
-  password: 'password123',
-  firstName: 'John',
-  lastName: 'Doe',
-  userType: 'UNIVERSITY'  // или 'SCHOOL'
-})
+  email: "newuser@example.com",
+  password: "password123",
+  firstName: "John",
+  lastName: "Doe",
+  userType: "UNIVERSITY", // или 'SCHOOL'
+});
 ```
 
 ## projects.ts — Projects Management
@@ -121,39 +121,39 @@ const { token } = await authService.register({
 
 ```typescript
 interface Project {
-  id: number
-  title: string
-  description: string
-  status: ProjectStatus  // 'PENDING' | 'APPROVED' | 'REJECTED'
-  author: UserRef
-  institution?: Institution
-  members?: UserRef[]
-  links: ProjectLink[]
-  invitationToken?: string
-  history?: ProjectHistoryItem[]
-  createdAt: string
-  updatedAt: string
+  id: number;
+  title: string;
+  description: string;
+  status: ProjectStatus; // 'PENDING' | 'APPROVED' | 'REJECTED'
+  author: UserRef;
+  institution?: Institution;
+  members?: UserRef[];
+  links: ProjectLink[];
+  invitationToken?: string;
+  history?: ProjectHistoryItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-type ProjectStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+type ProjectStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 interface ProjectLink {
-  id?: number
-  url: string
-  description?: string
+  id?: number;
+  url: string;
+  description?: string;
 }
 
 interface CreateProjectDto {
-  title: string
-  description: string
-  links: ProjectLink[]
+  title: string;
+  description: string;
+  links: ProjectLink[];
 }
 
 interface UpdateProjectDto {
-  title?: string
-  description?: string
-  status?: ProjectStatus
-  links?: ProjectLink[]
+  title?: string;
+  description?: string;
+  status?: ProjectStatus;
+  links?: ProjectLink[];
 }
 ```
 
@@ -164,10 +164,12 @@ interface UpdateProjectDto {
 Получить список всех проектов.
 
 **Параметры**:
+
 - `search` — поиск по названию
 - `skipAuth` — не добавлять токен (для публичного доступа)
 
 **Фильтрация**:
+
 - Автоматически на стороне клиента в `projects.ts` store
 - Студент видит только проекты своего ВУЗа
 - Школьник видит только проекты своей школы
@@ -175,10 +177,10 @@ interface UpdateProjectDto {
 
 ```typescript
 // Получить все проекты публично
-const projects = await projectsService.list({ skipAuth: true })
+const projects = await projectsService.list({ skipAuth: true });
 
 // С поиском
-const projects = await projectsService.list({ search: 'React' })
+const projects = await projectsService.list({ search: "React" });
 ```
 
 #### get(id: number): Promise<Project>
@@ -186,7 +188,7 @@ const projects = await projectsService.list({ search: 'React' })
 Получить один проект по ID.
 
 ```typescript
-const project = await projectsService.get(123)
+const project = await projectsService.get(123);
 ```
 
 #### create(dto: CreateProjectDto): Promise<Project>
@@ -195,15 +197,14 @@ const project = await projectsService.get(123)
 
 ```typescript
 const project = await projectsService.create({
-  title: 'My Awesome Project',
-  description: 'Description here',
-  links: [
-    { url: 'https://github.com/user/repo', description: 'GitHub' }
-  ]
-})
+  title: "My Awesome Project",
+  description: "Description here",
+  links: [{ url: "https://github.com/user/repo", description: "GitHub" }],
+});
 ```
 
 **Статус проекта**:
+
 - Для `ADMIN`/`UNIVERSITY_STAFF` → `APPROVED`
 - Для других → `PENDING` (ждёт модерации)
 
@@ -213,9 +214,9 @@ const project = await projectsService.create({
 
 ```typescript
 const updated = await projectsService.update(123, {
-  title: 'Updated Title',
-  status: 'APPROVED'
-})
+  title: "Updated Title",
+  status: "APPROVED",
+});
 ```
 
 **История**: При каждом обновлении создаётся запись в истории проекта.
@@ -225,7 +226,7 @@ const updated = await projectsService.update(123, {
 Удалить проект (только автор или админ).
 
 ```typescript
-await projectsService.remove(123)
+await projectsService.remove(123);
 ```
 
 #### generateInvitation(id: number): Promise<{ token: string }>
@@ -233,7 +234,7 @@ await projectsService.remove(123)
 Создать токен приглашения для присоединения в проект.
 
 ```typescript
-const { token } = await projectsService.generateInvitation(123)
+const { token } = await projectsService.generateInvitation(123);
 // Ссылка приглашения: ?join=token
 ```
 
@@ -242,10 +243,11 @@ const { token } = await projectsService.generateInvitation(123)
 Присоединиться к проекту по токену приглашения.
 
 ```typescript
-const project = await projectsService.joinProject(inviteToken)
+const project = await projectsService.joinProject(inviteToken);
 ```
 
 **Ограничения**:
+
 - Для школы: макс 3 участника
 - Для ВУЗа: макс 50 участников
 
@@ -255,38 +257,38 @@ const project = await projectsService.joinProject(inviteToken)
 
 ```typescript
 interface Institution {
-  id: number
-  name: string
-  type: 'UNIVERSITY' | 'SCHOOL'
+  id: number;
+  name: string;
+  type: "UNIVERSITY" | "SCHOOL";
 }
 
 interface StudentGroup {
-  id: number
-  name: string
-  grade?: number
-  institution: Institution
+  id: number;
+  name: string;
+  grade?: number;
+  institution: Institution;
 }
 
 interface UserProfile {
-  id: number
-  email: string
-  firstName?: string
-  lastName?: string
-  middleName?: string
-  roles?: { id: number; value: string }[]
-  group?: StudentGroup
+  id: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  roles?: { id: number; value: string }[];
+  group?: StudentGroup;
 }
 
 interface UpdateUserDto {
-  email?: string
-  password?: string
-  firstName?: string
-  lastName?: string
-  middleName?: string
-  groupId?: number
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  groupId?: number;
 }
 
-type UpdateProfileDto = UpdateUserDto
+type UpdateProfileDto = UpdateUserDto;
 ```
 
 ### Методы
@@ -296,8 +298,8 @@ type UpdateProfileDto = UpdateUserDto
 Получить профиль текущего пользователя (требуется авторизация).
 
 ```typescript
-const user = await usersService.profile()
-console.log(user.group?.institution.name)  // "Test University"
+const user = await usersService.profile();
+console.log(user.group?.institution.name); // "Test University"
 ```
 
 #### updateProfile(dto: UpdateProfileDto): Promise<UserProfile>
@@ -306,10 +308,10 @@ console.log(user.group?.institution.name)  // "Test University"
 
 ```typescript
 const updated = await usersService.updateProfile({
-  firstName: 'John',
-  lastName: 'Doe',
-  password: 'newpassword123'
-})
+  firstName: "John",
+  lastName: "Doe",
+  password: "newpassword123",
+});
 ```
 
 #### list(): Promise<UserProfile[]>
@@ -317,7 +319,7 @@ const updated = await usersService.updateProfile({
 Получить список всех пользователей (admin only).
 
 ```typescript
-const users = await usersService.list()
+const users = await usersService.list();
 ```
 
 #### get(id: number): Promise<UserProfile>
@@ -325,7 +327,7 @@ const users = await usersService.list()
 Получить профиль конкретного пользователя.
 
 ```typescript
-const user = await usersService.get(3)
+const user = await usersService.get(3);
 ```
 
 #### update(id: number, dto: UpdateUserDto): Promise<UserProfile>
@@ -333,7 +335,7 @@ const user = await usersService.get(3)
 Обновить профиль пользователя (admin only).
 
 ```typescript
-const updated = await usersService.update(3, { firstName: 'Jane' })
+const updated = await usersService.update(3, { firstName: "Jane" });
 ```
 
 ## Обработка ошибок
@@ -344,10 +346,10 @@ const updated = await usersService.update(3, { firstName: 'Jane' })
 
 ```typescript
 try {
-  const project = await projectsService.get(999)
+  const project = await projectsService.get(999);
 } catch (error: any) {
-  console.log(error.response.status)        // 404
-  console.log(error.response.data.message)  // "Project not found"
+  console.log(error.response.status); // 404
+  console.log(error.response.data.message); // "Project not found"
 }
 ```
 
@@ -365,19 +367,19 @@ try {
 
 ```typescript
 try {
-  const data = await projectsService.list()
+  const data = await projectsService.list();
 } catch (e: any) {
-  const status = e?.response?.status
-  const message = e?.response?.data?.message
+  const status = e?.response?.status;
+  const message = e?.response?.data?.message;
 
   if (status === 401) {
     // Токен истёк — выход
-    auth.logout()
+    auth.logout();
   } else if (status === 500) {
     // Ошибка сервера
-    this.error = `Ошибка сервера: ${message}`
+    this.error = `Ошибка сервера: ${message}`;
   } else {
-    this.error = message || 'Неизвестная ошибка'
+    this.error = message || "Неизвестная ошибка";
   }
 }
 ```
@@ -388,13 +390,13 @@ try {
 
 ```typescript
 // 1. Service запрашивает публично
-const data = await projectsService.list({ skipAuth: true })
+const data = await projectsService.list({ skipAuth: true });
 // GET /projects (без Authorization)
 // Ответ: все проекты
 
 // 2. Store фильтрует на клиенте
-const userType = 'UNIVERSITY'  // из профиля или preference
-const items = data.filter(p => p.institution?.type === userType)
+const userType = "UNIVERSITY"; // из профиля или preference
+const items = data.filter((p) => p.institution?.type === userType);
 // Результат: только проекты ВУЗа
 ```
 
@@ -403,20 +405,18 @@ const items = data.filter(p => p.institution?.type === userType)
 ```typescript
 // 1. Компонент собирает данные
 const newProject = {
-  title: 'React App',
-  description: 'A React application',
-  links: [
-    { url: 'https://github.com/user/react-app', description: 'GitHub' }
-  ]
-}
+  title: "React App",
+  description: "A React application",
+  links: [{ url: "https://github.com/user/react-app", description: "GitHub" }],
+};
 
 // 2. Вызывает сервис
-const created = await projectsService.create(newProject)
+const created = await projectsService.create(newProject);
 // POST /projects
 // Authorization: Bearer <token>
 
 // 3. Store обновляется
-this.items.push(created)
+this.items.push(created);
 
 // 4. UI перерисовывается
 ```
@@ -428,7 +428,7 @@ this.items.push(created)
 
 // 2. На главной странице обрабатывается параметр
 if (route.query.join) {
-  const project = await projectsService.joinProject(token)
+  const project = await projectsService.joinProject(token);
   // POST /projects/join/:token
   // Authorization: Bearer <token>
 }

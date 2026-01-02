@@ -34,7 +34,7 @@ async function handleInvitationJoin() {
 
 onMounted(async () => {
   if (!auth.user && auth.token) await auth.fetchProfile();
-  
+
   // Обработка приглашения если параметр join есть в URL
   if (route.query.join && auth.isAuthenticated) {
     await handleInvitationJoin();
